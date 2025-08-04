@@ -83,59 +83,62 @@
     
 
 
-<script>
-    // नया, बेहतर और सुरक्षित कोड
+       <script>
+    // नया, संपूर्ण और सही कोड - सभी फीचर्स के साथ
 
     document.addEventListener('DOMContentLoaded', () => {
 
+        // --- 1. सारे एलिमेंट्स को चुनें ---
+        const themeToggle = document.getElementById('themeToggle');
+        const searchIconBtn = document.getElementById('searchIconBtn');
+        const searchInput = document.getElementById('searchInput');
         const animeGrid = document.getElementById('anime-grid');
+        
+        // --- 2. ज़रूरी वेरिएबल्स ---
         const backendBaseUrl = 'https://anime-hangama.onrender.com';
+        let allPosts = []; // सारे पोस्ट्स को यहाँ सेव करेंगे ताकि सर्च काम कर सके
 
-        // यह फंक्शन सर्वर को अपडेट भेजता है (ज़्यादा भरोसेमंद)
+        // --- 3. सारे फंक्शन्स ---
+
+        // थीम (नाइट मोड) बदलने का फंक्शन
+        const handleThemeToggle = () => {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+        };
+
+        // सर्च को हैंडल करने का फंक्शन
+        const handleSearch = (event) => {
+            const searchTerm = event.target.value.toLowerCase();
+            const filteredPosts = allPosts.filter(post => 
+                post.title.toLowerCase().includes(searchTerm)
+            );
+            renderPosts(filteredPosts);
+        };
+
+        // व्यूज/क्लिक्स गिनने का फंक्शन
         const updateCounter = (postId, type) => {
-            if (!postId || !type) return; // अगर ID या टाइप न हो तो कुछ न करें
+            if (!postId || !type) return;
             const url = `${backendBaseUrl}/api/posts/${type}/${postId}`;
-            
-            // sendBeacon बैकग्राउंड में रिक्वेस्ट भेजता है, ताकि पेज बदलने पर भी यह काम करे
             if (navigator.sendBeacon) {
                 navigator.sendBeacon(url);
             } else {
-                // पुराने ब्राउज़र के लिए फॉलबैक
                 fetch(url, { method: 'PATCH', keepalive: true }).catch(err => {});
             }
         };
-
-        // यह फंक्शन सर्वर से पोस्ट लाता है
-        const loadPosts = async () => {
-            animeGrid.innerHTML = '<div><div class="grid-loader"></div><p style="text-align:center; color: var(--text-secondary);">Connecting to server, please wait...</p></div>';
-
-            try {
-                const response = await fetch(`${backendBaseUrl}/api/posts`);
-                if (!response.ok) throw new Error(`Network response was not ok`);
-                
-                const posts = await response.json();
-                renderPosts(posts);
-
-            } catch (error) {
-                console.error('Failed to load posts:', error);
-                animeGrid.innerHTML = '<p style="grid-column: 1 / -1; text-align: center;">पोस्ट लोड करने में विफल। कृपया बाद में प्रयास करें।</p>';
-            }
-        };
-
-        // यह फंक्शन पोस्ट्स को स्क्रीन पर दिखाता है
+        
+        // पोस्ट्स को स्क्रीन पर दिखाने का फंक्शन
         const renderPosts = (postsToRender) => {
             animeGrid.innerHTML = '';
             if (!postsToRender || postsToRender.length === 0) {
-                animeGrid.innerHTML = '<p style="grid-column: 1 / -1; text-align: center;">अभी कोई पोस्ट उपलब्ध नहीं है।</p>';
+                animeGrid.innerHTML = '<p style="grid-column: 1 / -1; text-align: center;">कोई पोस्ट नहीं मिला।</p>';
                 return;
             }
-
-            postsToRender.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)); // पोस्ट्स को नए से पुराने क्रम में लगाएं
-
+            
             postsToRender.forEach(post => {
                 const card = document.createElement('div');
                 card.className = 'anime-card';
-
                 card.innerHTML = `
                     <div class="card-img-wrapper">
                         <img src="${post.imageUrl}" alt="${post.title}" loading="lazy">
@@ -154,34 +157,60 @@
 
                 const cardLink = card.querySelector('.card-link');
 
-                // जब "Watch Now" बटन पर क्लिक हो
                 cardLink.addEventListener('click', (e) => {
-                    e.stopPropagation(); // कार्ड के क्लिक को रोकें ताकि व्यू काउंट न हो
+                    e.stopPropagation();
                     updateCounter(post._id, 'click');
                 });
 
-                // जब पूरे कार्ड पर (बटन को छोड़कर) क्लिक हो
                 card.addEventListener('click', (e) => {
-                    if (e.target.classList.contains('card-link')) return; // अगर बटन पर क्लिक हुआ है तो कुछ न करें
-
-                    // व्यूज को तुरंत स्क्रीन पर बढ़ाएं ताकि यूजर को दिखे
-                    const viewElement = document.getElementById(`views-${post._id}`);
-                    if (viewElement) {
-                        viewElement.textContent = (parseInt(viewElement.textContent.replace(/,/g, '')) + 1).toLocaleString();
-                    }
-                    
+                    if (e.target.classList.contains('card-link')) return;
                     updateCounter(post._id, 'view');
                     window.open(post.link, '_blank');
                 });
-
+                
                 animeGrid.appendChild(card);
             });
         };
 
+        // सर्वर से पोस्ट्स लाने का मुख्य फंक्शन
+        const loadPosts = async () => {
+            animeGrid.innerHTML = '<div><div class="grid-loader"></div><p style="text-align:center; color: var(--text-secondary);">Connecting to server, please wait...</p></div>';
+            try {
+                const response = await fetch(`${backendBaseUrl}/api/posts`);
+                if (!response.ok) throw new Error(`Network response was not ok`);
+                
+                const data = await response.json();
+                allPosts = data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)); // डेटा को 'allPosts' में सेव करें
+                renderPosts(allPosts); // और स्क्रीन पर दिखाएं
+
+            } catch (error) {
+                console.error('Failed to load posts:', error);
+                animeGrid.innerHTML = '<p style="grid-column: 1 / -1; text-align: center;">पोस्ट लोड करने में विफल।</p>';
+            }
+        };
+
+        // --- 4. इवेंट लिस्नर्स और शुरुआती काम ---
+        
+        // थीम टॉगल
+        themeToggle.addEventListener('click', handleThemeToggle);
+
+        // सर्च बार
+        searchIconBtn.addEventListener('click', () => {
+            searchInput.classList.toggle('active');
+            searchInput.focus();
+        });
+        searchInput.addEventListener('input', handleSearch);
+
+        // सेव की हुई थीम को लोड करें
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme) {
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        }
+
         // पेज लोड होते ही पोस्ट्स लोड करें
         loadPosts();
     });
-</script>
+</script>             
 	
 	
   
