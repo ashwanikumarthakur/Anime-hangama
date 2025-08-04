@@ -90,7 +90,7 @@
         const backendUrl = 'https://anime-hangama.onrender.com/api/posts'; // आपका लाइव सर्वर
 
         const loadPosts = async () => {
-            animeGrid.innerHTML = '<div class="grid-loader"></div>';
+        animeGrid.innerHTML = '<div><div class="grid-loader"></div><p style="text-align:center; color: var(--text-secondary);">Connecting to server, please wait...</p></div>';    
 
             try {
                 const response = await fetch(backendUrl);
