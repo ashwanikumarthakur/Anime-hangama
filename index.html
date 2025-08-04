@@ -82,21 +82,29 @@
     <!-- JavaScript File -->
     
   <script>
-    // यह कोड आपकी वेबसाइट और आपके सर्वर को जोड़ता है
+    // यह नया और बेहतर कोड है जो व्यूज और क्लिक्स को गिनता है
 
     document.addEventListener('DOMContentLoaded', () => {
 
         const animeGrid = document.getElementById('anime-grid');
-        const backendUrl = 'https://anime-hangama.onrender.com/api/posts'; // आपका लाइव सर्वर
+        // आपका लाइव बैकएंड का बेस URL
+        const backendBaseUrl = 'https://anime-hangama.onrender.com';
 
+        // --- यह नया फंक्शन है जो सर्वर को अपडेट भेजता है ---
+        const updateCounter = (postId, type) => {
+            // type होगा 'view' या 'click'
+            navigator.sendBeacon(`${backendBaseUrl}/api/posts/${type}/${postId}`);
+            // sendBeacon बैकग्राउंड में रिक्वेस्ट भेजता है, ताकि पेज बदलने पर भी यह काम करे
+        };
+
+        // यह फंक्शन सर्वर से पोस्ट लाता है
         const loadPosts = async () => {
-        animeGrid.innerHTML = '<div><div class="grid-loader"></div><p style="text-align:center; color: var(--text-secondary);">Connecting to server, please wait...</p></div>';    
+            animeGrid.innerHTML = '<div><div class="grid-loader"></div><p style="text-align:center; color: var(--text-secondary);">Connecting to server, please wait...</p></div>';
 
             try {
-                const response = await fetch(backendUrl);
-                if (!response.ok) {
-                    throw new Error(`Network response was not ok`);
-                }
+                const response = await fetch(`${backendBaseUrl}/api/posts`);
+                if (!response.ok) throw new Error(`Network response was not ok`);
+                
                 const posts = await response.json();
                 renderPosts(posts);
 
@@ -106,45 +114,64 @@
             }
         };
 
+        // यह फंक्शन पोस्ट्स को स्क्रीन पर दिखाता है
         const renderPosts = (postsToRender) => {
             animeGrid.innerHTML = '';
             if (postsToRender.length === 0) {
                 animeGrid.innerHTML = '<p style="grid-column: 1 / -1; text-align: center;">अभी कोई पोस्ट उपलब्ध नहीं है।</p>';
-            } else {
-                postsToRender.forEach(post => {
-                    const card = document.createElement('div');
-                    card.className = 'anime-card';
-                    
-                    // जब कोई कार्ड पर क्लिक करे तो नए टैब में लिंक खुले
-                    card.addEventListener('click', () => {
-                        window.open(post.link, '_blank');
-                    });
-
-                    card.innerHTML = `
-                        <div class="card-img-wrapper">
-                            <img src="${post.imageUrl}" alt="${post.title}" loading="lazy">
-                        </div>
-                        <div class="card-content">
-                            <h3 class="card-title" title="${post.title}">${post.title}</h3>
-                            <div class="card-footer">
-                                <span class="view-count">
-                                    <i class="material-icons" style="font-size: 1rem;">visibility</i>
-                                    <span>${(post.views || 0).toLocaleString()}</span>
-                                </span>
-                                <a href="${post.link}" target="_blank" class="card-link" rel="noopener noreferrer">Watch Now</a>
-                            </div>
-                        </div>
-                    `;
-                    animeGrid.appendChild(card);
-                });
+                return;
             }
+
+            postsToRender.forEach(post => {
+                const card = document.createElement('div');
+                card.className = 'anime-card';
+                card.style.cursor = 'pointer'; // ताकि यह क्लिक करने लायक लगे
+
+                card.innerHTML = `
+                    <div class="card-img-wrapper">
+                        <img src="${post.imageUrl}" alt="${post.title}" loading="lazy">
+                    </div>
+                    <div class="card-content">
+                        <h3 class="card-title" title="${post.title}">${post.title}</h3>
+                        <div class="card-footer">
+                            <span class="view-count">
+                                <i class="material-icons" style="font-size: 1rem;">visibility</i>
+                                <!-- हम यहाँ रियल-टाइम व्यूज दिखाएंगे -->
+                                <span id="views-${post._id}">${(post.views || 0).toLocaleString()}</span>
+                            </span>
+                            <a href="${post.link}" target="_blank" class="card-link" rel="noopener noreferrer">Watch Now</a>
+                        </div>
+                    </div>
+                `;
+
+                const cardLink = card.querySelector('.card-link');
+
+                // --- यह है असली जादू ---
+
+                // 1. जब "Watch Now" लिंक पर क्लिक हो, तो सिर्फ 'click' गिनें
+                cardLink.addEventListener('click', (e) => {
+                    e.stopPropagation(); // कार्ड के क्लिक को चलने से रोकें
+                    updateCounter(post._id, 'click');
+                });
+
+                // 2. जब कार्ड पर कहीं और क्लिक हो, तो 'view' गिनें
+                card.addEventListener('click', () => {
+                    // व्यूज को तुरंत स्क्रीन पर बढ़ाएं
+                    const viewElement = document.getElementById(`views-${post._id}`);
+                    viewElement.textContent = (parseInt(viewElement.textContent.replace(/,/g, '')) + 1).toLocaleString();
+                    
+                    updateCounter(post._id, 'view');
+                    window.open(post.link, '_blank');
+                });
+
+                animeGrid.appendChild(card);
+            });
         };
 
+        // पेज लोड होते ही पोस्ट्स लोड करें
         loadPosts();
     });
 </script>
- 
-  
   
   
 </body>
