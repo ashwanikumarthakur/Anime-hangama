@@ -81,20 +81,28 @@
 
     <!-- JavaScript File -->
     
-  <script>
-    // यह नया और बेहतर कोड है जो व्यूज और क्लिक्स को गिनता है
+
+
+<script>
+    // नया, बेहतर और सुरक्षित कोड
 
     document.addEventListener('DOMContentLoaded', () => {
 
         const animeGrid = document.getElementById('anime-grid');
-        // आपका लाइव बैकएंड का बेस URL
         const backendBaseUrl = 'https://anime-hangama.onrender.com';
 
-        // --- यह नया फंक्शन है जो सर्वर को अपडेट भेजता है ---
+        // यह फंक्शन सर्वर को अपडेट भेजता है (ज़्यादा भरोसेमंद)
         const updateCounter = (postId, type) => {
-            // type होगा 'view' या 'click'
-            navigator.sendBeacon(`${backendBaseUrl}/api/posts/${type}/${postId}`);
+            if (!postId || !type) return; // अगर ID या टाइप न हो तो कुछ न करें
+            const url = `${backendBaseUrl}/api/posts/${type}/${postId}`;
+            
             // sendBeacon बैकग्राउंड में रिक्वेस्ट भेजता है, ताकि पेज बदलने पर भी यह काम करे
+            if (navigator.sendBeacon) {
+                navigator.sendBeacon(url);
+            } else {
+                // पुराने ब्राउज़र के लिए फॉलबैक
+                fetch(url, { method: 'PATCH', keepalive: true }).catch(err => {});
+            }
         };
 
         // यह फंक्शन सर्वर से पोस्ट लाता है
@@ -117,15 +125,16 @@
         // यह फंक्शन पोस्ट्स को स्क्रीन पर दिखाता है
         const renderPosts = (postsToRender) => {
             animeGrid.innerHTML = '';
-            if (postsToRender.length === 0) {
+            if (!postsToRender || postsToRender.length === 0) {
                 animeGrid.innerHTML = '<p style="grid-column: 1 / -1; text-align: center;">अभी कोई पोस्ट उपलब्ध नहीं है।</p>';
                 return;
             }
 
+            postsToRender.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)); // पोस्ट्स को नए से पुराने क्रम में लगाएं
+
             postsToRender.forEach(post => {
                 const card = document.createElement('div');
                 card.className = 'anime-card';
-                card.style.cursor = 'pointer'; // ताकि यह क्लिक करने लायक लगे
 
                 card.innerHTML = `
                     <div class="card-img-wrapper">
@@ -136,7 +145,6 @@
                         <div class="card-footer">
                             <span class="view-count">
                                 <i class="material-icons" style="font-size: 1rem;">visibility</i>
-                                <!-- हम यहाँ रियल-टाइम व्यूज दिखाएंगे -->
                                 <span id="views-${post._id}">${(post.views || 0).toLocaleString()}</span>
                             </span>
                             <a href="${post.link}" target="_blank" class="card-link" rel="noopener noreferrer">Watch Now</a>
@@ -146,19 +154,21 @@
 
                 const cardLink = card.querySelector('.card-link');
 
-                // --- यह है असली जादू ---
-
-                // 1. जब "Watch Now" लिंक पर क्लिक हो, तो सिर्फ 'click' गिनें
+                // जब "Watch Now" बटन पर क्लिक हो
                 cardLink.addEventListener('click', (e) => {
-                    e.stopPropagation(); // कार्ड के क्लिक को चलने से रोकें
+                    e.stopPropagation(); // कार्ड के क्लिक को रोकें ताकि व्यू काउंट न हो
                     updateCounter(post._id, 'click');
                 });
 
-                // 2. जब कार्ड पर कहीं और क्लिक हो, तो 'view' गिनें
-                card.addEventListener('click', () => {
-                    // व्यूज को तुरंत स्क्रीन पर बढ़ाएं
+                // जब पूरे कार्ड पर (बटन को छोड़कर) क्लिक हो
+                card.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('card-link')) return; // अगर बटन पर क्लिक हुआ है तो कुछ न करें
+
+                    // व्यूज को तुरंत स्क्रीन पर बढ़ाएं ताकि यूजर को दिखे
                     const viewElement = document.getElementById(`views-${post._id}`);
-                    viewElement.textContent = (parseInt(viewElement.textContent.replace(/,/g, '')) + 1).toLocaleString();
+                    if (viewElement) {
+                        viewElement.textContent = (parseInt(viewElement.textContent.replace(/,/g, '')) + 1).toLocaleString();
+                    }
                     
                     updateCounter(post._id, 'view');
                     window.open(post.link, '_blank');
@@ -172,7 +182,8 @@
         loadPosts();
     });
 </script>
-  
+	
+	
   
 </body>
 </html>
