@@ -80,8 +80,69 @@
   
 
     <!-- JavaScript File -->
-    <script src="script.js"></script>
-  
+    
+  <script>
+    // यह कोड आपकी वेबसाइट और आपके सर्वर को जोड़ता है
+
+    document.addEventListener('DOMContentLoaded', () => {
+
+        const animeGrid = document.getElementById('anime-grid');
+        const backendUrl = 'https://anime-hangama.onrender.com/api/posts'; // आपका लाइव सर्वर
+
+        const loadPosts = async () => {
+            animeGrid.innerHTML = '<div class="grid-loader"></div>';
+
+            try {
+                const response = await fetch(backendUrl);
+                if (!response.ok) {
+                    throw new Error(`Network response was not ok`);
+                }
+                const posts = await response.json();
+                renderPosts(posts);
+
+            } catch (error) {
+                console.error('Failed to load posts:', error);
+                animeGrid.innerHTML = '<p style="grid-column: 1 / -1; text-align: center;">पोस्ट लोड करने में विफल। कृपया बाद में प्रयास करें।</p>';
+            }
+        };
+
+        const renderPosts = (postsToRender) => {
+            animeGrid.innerHTML = '';
+            if (postsToRender.length === 0) {
+                animeGrid.innerHTML = '<p style="grid-column: 1 / -1; text-align: center;">अभी कोई पोस्ट उपलब्ध नहीं है।</p>';
+            } else {
+                postsToRender.forEach(post => {
+                    const card = document.createElement('div');
+                    card.className = 'anime-card';
+                    
+                    // जब कोई कार्ड पर क्लिक करे तो नए टैब में लिंक खुले
+                    card.addEventListener('click', () => {
+                        window.open(post.link, '_blank');
+                    });
+
+                    card.innerHTML = `
+                        <div class="card-img-wrapper">
+                            <img src="${post.imageUrl}" alt="${post.title}" loading="lazy">
+                        </div>
+                        <div class="card-content">
+                            <h3 class="card-title" title="${post.title}">${post.title}</h3>
+                            <div class="card-footer">
+                                <span class="view-count">
+                                    <i class="material-icons" style="font-size: 1rem;">visibility</i>
+                                    <span>${(post.views || 0).toLocaleString()}</span>
+                                </span>
+                                <a href="${post.link}" target="_blank" class="card-link" rel="noopener noreferrer">Watch Now</a>
+                            </div>
+                        </div>
+                    `;
+                    animeGrid.appendChild(card);
+                });
+            }
+        };
+
+        loadPosts();
+    });
+</script>
  
   
   
