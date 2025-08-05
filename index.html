@@ -8,6 +8,41 @@
     <!-- Google Fonts & Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+
+
+
+    <!-- Ads Fix for Mobile -->
+    <style>
+        .ad-space {
+            max-width: 100%;     /* यह सुनिश्चित करता है कि कंटेनर स्क्रीन से बाहर न जाए */
+            overflow: hidden;       /* यह विज्ञापन को बाहर निकलने से रोकता है, उसे काट देता है */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            /* विज्ञापन के लिए न्यूनतम ऊंचाई ताकि लेआउट न बिगड़े */
+            min-height: 90px;
+        }
+
+        /* यह सीधे विज्ञापन के iframe को टारगेट करता है */
+        .ad-space iframe {
+            max-width: 100% !important; /* iframe को कंटेनर से बड़ा होने से रोकता है */
+            height: auto !important;    /* चौड़ाई के हिसाब से ऊंचाई को एडजस्ट करता है */
+            transform: scale(1);        /* कुछ ब्राउज़रों में स्केलिंग की समस्या को ठीक करता है */
+        }
+
+        /* नीचे वाले विज्ञापन के लिए अलग न्यूनतम ऊंचाई */
+        #ad-space-bottom {
+            min-height: 250px;
+        }
+    </style>
+
+<!-- यह टैग पहले से होगा, इसके ठीक ऊपर पेस्ट करें -->
+
+
+
+
+
 </head>
 <body>
 
