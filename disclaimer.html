@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Disclaimer - Anime Hangama</title>
+    <!-- बेसिक स्टाइलिंग ताकि पेज अच्छा दिखे -->
+    <style>
+        :root {
+            --font-family: 'Poppins', sans-serif;
+        }
+        html[data-theme="light"] {
+            --bg-primary: #f5f5f5; --bg-secondary: #ffffff;
+            --text-primary: #121212; --text-secondary: #555;
+            --accent-color: #007BFF;
+        }
+        html[data-theme="dark"] {
+            --bg-primary: #121212; --bg-secondary: #1e1e1e;
+            --text-primary: #e0e0e0; --text-secondary: #a0a0a0;
+            --accent-color: #3d5af1;
+        }
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: var(--font-family, sans-serif);
+            line-height: 1.7;
+            padding: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background-color: var(--bg-secondary);
+            padding: 2.5rem;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+        h1 { 
+            color: var(--text-primary); 
+            border-bottom: 2px solid var(--accent-color); 
+            padding-bottom: 0.75rem; 
+            margin-bottom: 1.5rem;
+            font-size: 2rem;
+        }
+        p { margin-bottom: 1.25rem; color: var(--text-secondary); }
+        strong { color: var(--text-primary); }
+        .contact-info {
+            background-color: var(--bg-primary);
+            padding: 1rem;
+            border-left: 4px solid var(--accent-color);
+            margin-top: 1.5rem;
+            border-radius: 5px;
+        }
+        a { color: var(--accent-color); text-decoration: none; font-weight: bold; }
+        a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Disclaimer for Anime Hangama</h1>
+
+        <p><strong>Anime Hangama is a fan-based platform that only shares publicly available links collected from across the internet.</strong> Our service functions as a search engine or directory, indexing links to content that is already hosted on third-party websites.</p>
+
+        <p><strong>We do not host, store, upload, or distribute any copyrighted material, videos, or files on our servers.</strong> The content to which we link is the sole responsibility of the sites that host it. We have no control over the legality of the content on other sites and are not responsible for it.</p>
+        
+        <p>All copyrights and trademarks for the anime, manga, and other promotional materials are held by their respective owners. We operate under the belief that linking to content is allowed under the fair use clause of copyright law.</p>
+
+        <div class="contact-info">
+            <p style="margin-bottom: 0;">If you are a copyright holder and believe that any content on this site violates your copyright or intellectual property, please reach out to us at:
+            <strong><a href="mailto:animorphiastudios@gmail.com">animorphiastudios@gmail.com</a></strong>.
+            <br>We will take appropriate action and remove the indexed content from our platform as quickly as possible.</p>
+        </div>
+
+        <br>
+        <a href="index.html">← Back to Home</a>
+    </div>
+
+</body>
+</html>
