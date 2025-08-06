@@ -114,10 +114,8 @@
     
 
 
-
-                
 <script>
-    // --- अंतिम, पूरा और सुधरा हुआ फ्रंटएंड कोड ---
+    // --- अंतिम, पूरा और सही फ्रंटएंड कोड (पेजिनेशन के साथ काम करने वाला) ---
 
     document.addEventListener('DOMContentLoaded', () => {
 
@@ -138,11 +136,10 @@
             if (!postId || !type) return;
             const url = `${backendBaseUrl}/api/posts/${type}/${postId}`;
             
-            // fetch का उपयोग करें ताकि हम Network टैब में रिक्वेस्ट देख सकें
             fetch(url, {
                 method: 'PATCH',
-                mode: 'cors',    // CORS पॉलिसी को स्पष्ट रूप से बताएं
-                keepalive: true  // यह सुनिश्चित करता है कि पेज बंद होने पर भी रिक्वेस्ट जाए
+                mode: 'cors',
+                keepalive: true
             })
             .catch(error => {
                 console.error(`Network error for ${type} count:`, error);
@@ -150,19 +147,26 @@
         };
 
         // ===============================================================
-        //    2. सर्वर से सारे पोस्ट्स लाने वाला फंक्शन
+        //    2. सर्वर से सारे पोस्ट्स लाने वाला फंक्शन (पेजिनेशन के लिए अपडेटेड)
         // ===============================================================
         const loadPosts = async () => {
-            if (!animeGrid) return;
+            if (!animeGrid) {
+                console.error("Fatal Error: The #anime-grid element was not found in the HTML.");
+                return;
+            }
             animeGrid.innerHTML = '<div><div class="grid-loader"></div><p style="text-align:center; color: var(--text-secondary);">Connecting to server...</p></div>';
             
             try {
+                // सर्वर से डेटा का 'डिब्बा' मंगाएं
                 const response = await fetch(`${backendBaseUrl}/api/posts`);
                 if (!response.ok) throw new Error(`Network Error: ${response.status}`);
                 
-                const posts = await response.json();
-                allPosts = posts; // सारे पोस्ट्स को भविष्य के लिए सेव कर लें
-                renderPosts(allPosts); // और स्क्रीन पर दिखा दें
+                const data = await response.json(); // सर्वर से आया पूरा डिब्बा (जिसमें posts, totalPages, आदि हैं)
+                
+                // --- यही है सबसे ज़रूरी बदलाव ---
+                allPosts = data.posts; // डिब्बे के अंदर से 'posts' वाली लिस्ट निकालें
+                
+                renderPosts(allPosts); // और उसे स्क्रीन पर दिखा दें
 
             } catch (error) {
                 animeGrid.innerHTML = `<p style="grid-column: 1 / -1; text-align: center;">Error loading posts. Please try again later.</p>`;
