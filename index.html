@@ -114,49 +114,71 @@
     
 
 
+
+                
 <script>
-    // फाइनल और सही कोड - यह 100% काम करेगा
+    // --- अंतिम, पूरा और सुधरा हुआ फ्रंटएंड कोड ---
 
     document.addEventListener('DOMContentLoaded', () => {
 
+        // --- जरूरी एलिमेंट्स को चुनें ---
         const animeGrid = document.getElementById('anime-grid');
-        // यह सुनिश्चित करें कि यह आपका सही और पूरा सर्वर URL है
-        const backendBaseUrl = 'https://anime-hangama.onrender.com';
+        const searchInput = document.getElementById('searchInput');
+        const searchIconBtn = document.getElementById('searchIconBtn');
+        const themeToggle = document.getElementById('themeToggle');
 
-        // यह फंक्शन सर्वर को सही और पूरा URL भेजता है
+        // --- कॉन्फ़िगरेशन ---
+        const backendBaseUrl = 'https://anime-hangama.onrender.com';
+        let allPosts = []; // सारे पोस्ट्स को एक जगह सेव करें ताकि सर्च में काम आए
+
+        // ===============================================================
+        //    1. सर्वर को व्यूज/क्लिक्स का सिग्नल भेजने वाला फंक्शन
+        // ===============================================================
         const updateCounter = (postId, type) => {
             if (!postId || !type) return;
-            // यहाँ हम पूरा URL बना रहे हैं
             const url = `${backendBaseUrl}/api/posts/${type}/${postId}`;
             
-            if (navigator.sendBeacon) {
-                navigator.sendBeacon(url);
-            } else {
-                fetch(url, { method: 'PATCH', keepalive: true }).catch(err => {});
-            }
+            // fetch का उपयोग करें ताकि हम Network टैब में रिक्वेस्ट देख सकें
+            fetch(url, {
+                method: 'PATCH',
+                mode: 'cors',    // CORS पॉलिसी को स्पष्ट रूप से बताएं
+                keepalive: true  // यह सुनिश्चित करता है कि पेज बंद होने पर भी रिक्वेस्ट जाए
+            })
+            .catch(error => {
+                console.error(`Network error for ${type} count:`, error);
+            });
         };
 
-        // यह फंक्शन सर्वर से पोस्ट्स लाता है
+        // ===============================================================
+        //    2. सर्वर से सारे पोस्ट्स लाने वाला फंक्शन
+        // ===============================================================
         const loadPosts = async () => {
-            animeGrid.innerHTML = '<div><div class="grid-loader"></div><p style="text-align:center; color: var(--text-secondary);">Connecting to server, please wait...</p></div>';
-
+            if (!animeGrid) return;
+            animeGrid.innerHTML = '<div><div class="grid-loader"></div><p style="text-align:center; color: var(--text-secondary);">Connecting to server...</p></div>';
+            
             try {
                 const response = await fetch(`${backendBaseUrl}/api/posts`);
-                if (!response.ok) throw new Error(`Network response was not ok`);
+                if (!response.ok) throw new Error(`Network Error: ${response.status}`);
                 
                 const posts = await response.json();
-                renderPosts(posts);
+                allPosts = posts; // सारे पोस्ट्स को भविष्य के लिए सेव कर लें
+                renderPosts(allPosts); // और स्क्रीन पर दिखा दें
 
             } catch (error) {
-                animeGrid.innerHTML = `<p style="grid-column: 1 / -1; text-align: center;">Error: Could not load posts. Please try again later. ${error.message}</p>`;
+                animeGrid.innerHTML = `<p style="grid-column: 1 / -1; text-align: center;">Error loading posts. Please try again later.</p>`;
+                console.error("Error details:", error);
             }
         };
 
-        // यह फंक्शन पोस्ट्स को स्क्रीन पर दिखाता है
+        // ===============================================================
+        //    3. पोस्ट्स को HTML में बदलकर स्क्रीन पर दिखाने वाला फंक्शन
+        // ===============================================================
         const renderPosts = (postsToRender) => {
+            if (!animeGrid) return;
             animeGrid.innerHTML = '';
+
             if (!postsToRender || postsToRender.length === 0) {
-                animeGrid.innerHTML = '<p style="grid-column: 1 / -1; text-align: center;">No posts available right now.</p>';
+                animeGrid.innerHTML = '<p style="grid-column: 1 / -1; text-align: center;">No matching posts found.</p>';
                 return;
             }
 
@@ -182,16 +204,20 @@
                     </div>
                 `;
 
+                // --- क्लिक्स को हैंडल करना ---
                 const cardLink = card.querySelector('.card-link');
-
+                
+                // "Watch Now" बटन पर क्लिक
                 cardLink.addEventListener('click', (e) => {
-                    e.stopPropagation();
+                    e.stopPropagation(); // कार्ड के क्लिक को रोकें
                     updateCounter(post._id, 'click');
                 });
-
+                
+                // पूरे कार्ड पर क्लिक (बटन को छोड़कर)
                 card.addEventListener('click', (e) => {
                     if (e.target.closest('.card-link')) return;
-
+                    
+                    // व्यूज को तुरंत स्क्रीन पर बढ़ाएं
                     const viewElement = document.getElementById(`views-${post._id}`);
                     if (viewElement) {
                         const currentViews = parseInt(viewElement.textContent.replace(/,/g, '')) || 0;
@@ -206,12 +232,50 @@
             });
         };
 
-        loadPosts();
-    });
-				  </script>
+        // ===============================================================
+        //    4. सर्च और थीम को हैंडल करने वाले फंक्शन्स
+        // ===============================================================
+        
+        // सर्च फंक्शन
+        const handleSearch = () => {
+            const searchTerm = searchInput.value.toLowerCase();
+            const filteredPosts = allPosts.filter(post => 
+                post.title.toLowerCase().includes(searchTerm)
+            );
+            renderPosts(filteredPosts);
+        };
 
-	
-	
+        // थीम टॉगल फंक्शन
+        const handleThemeToggle = () => {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+        };
+
+        // पहले से सेव की हुई थीम को लोड करें
+        const loadSavedTheme = () => {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) {
+                document.documentElement.setAttribute('data-theme', savedTheme);
+            }
+        };
+
+        // --- इवेंट्स को लगाना ---
+        searchIconBtn.addEventListener('click', () => searchInput.classList.toggle('active') && searchInput.focus());
+        searchInput.addEventListener('input', handleSearch);
+        themeToggle.addEventListener('click', handleThemeToggle);
+
+        // ===============================================================
+        //    5. वेबसाइट को शुरू करना
+        // ===============================================================
+        loadSavedTheme(); // सबसे पहले थीम लोड करें
+        loadPosts();      // फिर सर्वर से पोस्ट्स लोड करें
+
+    });
+</script>
+
+
 	
   
 </body>
