@@ -4,17 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Anime Hangama</title>
-    <!-- Google Fonts & Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <!-- Tiny Slider for Buttery Smooth Slider -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tiny-slider/2.9.3/tiny-slider.css">
     <style>
-        /* [Line ~15] --- Root Variables and Basic Setup --- */
         :root {
             --font-family: 'Poppins', sans-serif;
             --radius-1: 8px; --radius-2: 50px;
-            --transition-1: 0.2s ease; --transition-2: 0.4s ease;
+            --transition-1: 0.2s ease;
         }
         html[data-theme="light"] {
             --bg-primary: #f0f2f5; --bg-secondary: #ffffff;
@@ -30,113 +26,150 @@
         body {
             background-color: var(--bg-primary); color: var(--text-primary);
             font-family: var(--font-family);
-            overflow-x: hidden;
         }
         .container { width: 95%; max-width: 1300px; margin: 0 auto; }
         a { color: var(--accent-color); text-decoration: none; }
 
-        /* [Line ~45] --- HEADER (Perfected Animation) --- */
+        /* --- HEADER FIXES --- */
         header {
             background-color: var(--bg-secondary); border-bottom: 1px solid var(--border-color);
             padding: 0.8rem 0; position: sticky; top: 0; z-index: 100;
         }
-        .header-container { display: flex; justify-content: space-between; align-items: center; }
-        .logo { 
-            font-size: 1.4rem; font-weight: 700; color: var(--accent-color);
-            transition: transform var(--transition-2), opacity var(--transition-2);
-            transform: translateX(0); opacity: 1;
-        }
-        .logo.search-active {
-            transform: translateX(-50px); opacity: 0; pointer-events: none;
-        }
+        .header-container { display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
+        .logo { font-size: 1.4rem; font-weight: 700; color: var(--accent-color); white-space: nowrap; }
         nav { display: flex; align-items: center; gap: 0.5rem; }
-        .search-wrapper { position: relative; display: flex; align-items: center; justify-content: flex-end; }
+        .search-wrapper { display: flex; align-items: center; }
         .search-input {
-            position: absolute; right: 45px; /* Positioned to not overflow */
-            width: 0; padding: 0.6rem 0; border: 1px solid transparent; border-radius: var(--radius-2);
-            font-size: 0.9rem; color: var(--text-primary); background-color: var(--bg-primary);
-            transition: all var(--transition-2); opacity: 0;
+            width: 0; padding: 0; border: none; outline: none; border-radius: var(--radius-2);
+            background-color: transparent; font-size: 0.9rem; color: var(--text-primary);
+            transition: width 0.4s ease;
         }
         .search-input.active {
-            width: 220px; padding: 0.6rem 1rem; opacity: 1; border-color: var(--border-color);
+            width: 150px; padding: 0.6rem 1rem; border: 1px solid var(--border-color);
+            background-color: var(--bg-primary);
         }
         .search-icon-btn, .theme-toggle-btn {
             background: none; border: none; cursor: pointer; color: var(--text-secondary);
-            display: flex; align-items: center; padding: 0.5rem; z-index: 2;
+            display: flex; align-items: center; padding: 0.5rem; flex-shrink: 0;
         }
         
-        /* [Line ~85] --- SEARCH HISTORY --- */
-        #search-history { /* ... (same as before) ... */ }
+        /* --- MOBILE SEARCH OVERLAY --- */
+        .search-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); z-index: 200;
+            display: none; align-items: flex-start; justify-content: center;
+            padding-top: 5rem; backdrop-filter: blur(5px);
+        }
+        .search-overlay.active { display: flex; }
+        .search-overlay-content { display: flex; width: 90%; max-width: 500px; }
+        .search-overlay-input {
+            width: 100%; padding: 1rem; font-size: 1.2rem;
+            border: 2px solid var(--accent-color); border-right: none;
+            border-radius: var(--radius-1) 0 0 var(--radius-1);
+            background: var(--bg-secondary); color: var(--text-primary); outline: none;
+        }
+        .search-overlay-close {
+            padding: 1rem; background: var(--accent-color); color: #fff;
+            border: 2px solid var(--accent-color); font-size: 1.2rem;
+            border-radius: 0 var(--radius-1) var(--radius-1) 0; cursor: pointer;
+        }
 
-        /* [Line ~100] --- TAGS SLIDER (Two-row, Buttery Smooth) --- */
+        /* --- TAGS SLIDER --- */
         .filters-container { margin: 2rem 0; }
         .section-title { text-align: center; font-size: 1.8rem; margin-bottom: 1.5rem; }
-        .tags-slider-wrapper { position: relative; }
-        .tags-slider .item {
-             /* This will be the container for each tag bubble */
+        .tags-slider {
+            display: flex; overflow-x: auto;
+            -ms-overflow-style: none; scrollbar-width: none;
+            padding-bottom: 1rem;
         }
+        .tags-slider::-webkit-scrollbar { display: none; }
         .tag-bubble {
             padding: 0.5rem 1rem; background: var(--bg-secondary); border: 1px solid var(--border-color);
             border-radius: var(--radius-2); color: var(--text-secondary); font-weight: 600; cursor: pointer;
-            transition: var(--transition-1); white-space: nowrap; margin: 0.25rem; display: inline-block;
+            transition: var(--transition-1); white-space: nowrap; flex-shrink: 0; margin-right: 0.75rem;
         }
         .tag-bubble:hover { border-color: var(--accent-color); color: var(--text-primary); }
         .tag-bubble.active { background-color: var(--accent-color); color: #fff; border-color: var(--accent-color); }
-        /* Tiny slider controls styling */
-        .tns-controls button {
-            position: absolute; top: 50%; transform: translateY(-50%);
-            background: var(--bg-secondary); color: var(--text-primary);
-            border: 1px solid var(--border-color); border-radius: 50%;
-            width: 40px; height: 40px; z-index: 10;
-        }
-        .tns-controls button:first-child { left: -20px; }
-        .tns-controls button:last-child { right: -20px; }
 
-        /* [Line ~130] --- ANIME GRID, CARDS, PAGINATION, ADS, FOOTER (Unchanged) --- */
+        /* --- GRID & CARDS --- */
         #anime-grid {
             display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
             gap: 1.5rem; min-height: 200px;
         }
-        .anime-card { /* ... */ }
-        .pagination { /* ... */ }
-        .ad-space { /* ... */ }
-        footer { /* ... */ }
-        .grid-loader { /* ... */ }
+        .anime-card {
+            background-color: var(--bg-secondary); border-radius: var(--radius-1);
+            overflow: hidden; box-shadow: 0 5px 15px var(--shadow-color);
+            transition: transform var(--transition-1); cursor: pointer;
+        }
+        .anime-card:hover { transform: translateY(-8px); }
+        .card-img-wrapper {
+            width: 100%; padding-top: 140%; position: relative;
+            background-color: var(--border-color);
+        }
+        .card-img-wrapper img {
+            position: absolute; top: 0; left: 0;
+            width: 100%; height: 100%; object-fit: cover;
+        }
+        .card-content { padding: 1rem; }
+        .card-title { font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; }
+        .card-footer { display: flex; justify-content: space-between; align-items: center; }
+        .view-count { display: flex; align-items: center; gap: 0.3rem; color: var(--text-secondary); }
+        
+        /* --- AD SPACE & FOOTER --- */
+        .ad-space { display: flex; justify-content: center; margin: 2rem 0; }
+        footer { text-align: center; padding: 1.5rem 0; margin-top: 2rem; background-color: var(--bg-secondary); }
+        .footer-links { display: flex; justify-content: center; gap: 1.5rem; margin-bottom: 0.8rem; }
+        .footer-links a { color: var(--text-secondary); font-size: 0.9rem; }
+        footer p { color: var(--text-secondary); font-size: 0.8rem; }
+
+        @media (max-width: 768px) {
+            .search-wrapper { display: none; } /* Hide desktop search on mobile */
+        }
+        @media (min-width: 769px) {
+            .search-icon-btn.mobile-only { display: none; } /* Hide mobile search icon on desktop */
+        }
     </style>
 </head>
 <body>
     <header>
         <div class="container header-container">
-            <a href="/" class="logo" id="logo">Anime Hangama</a>
-            <nav id="nav">
-                <div class="search-wrapper" id="searchWrapper">
+            <a href="/" class="logo">Anime Hangama</a>
+            <nav>
+                <div class="search-wrapper">
                     <input type="text" id="searchInput" class="search-input" placeholder="Search...">
-                    <ul id="search-history"></ul>
                 </div>
                 <button class="search-icon-btn" id="searchIconBtn"><i class="material-icons">search</i></button>
-                <button class="theme-toggle-btn" id="themeToggle"><i class="material-icons">brightness_6</i></button>
+                <button class="theme-toggle-btn" id="themeToggle" title="Toggle Theme"><i class="material-icons">brightness_6</i></button>
             </nav>
         </div>
     </header>
 
+    <!-- Mobile Search Overlay -->
+    <div class="search-overlay" id="searchOverlay">
+        <div class="search-overlay-content">
+            <input type="text" id="searchInputMobile" class="search-overlay-input" placeholder="Type and press Enter...">
+            <button class="search-overlay-close" id="searchOverlayClose">×</button>
+        </div>
+    </div>
+
     <main class="container">
-        <div class="ad-space" id="ad-space-top"><!-- Ad code here --></div>
-        
+        <div class="ad-space" id="ad-space-top">
+            <p><script type="text/javascript" src="//www.highperformanceformat.com/0dc3cf5a51b8f5b9473304925acc62/invoke.js"></script></p>
+        </div>
+
         <div class="filters-container">
             <h2 class="section-title">Browse by Tags</h2>
-            <div class="tags-slider-wrapper">
-                <div class="tags-slider" id="tagsSlider">
-                    <!-- Tags will be dynamically loaded here into 'item' divs -->
-                </div>
+            <div class="tags-slider" id="tagsSlider">
+                <!-- Tags will be loaded here -->
             </div>
         </div>
         
         <h2 class="section-title" id="gridTitle">Latest Posts</h2>
-        <div id="anime-grid"></div>
-        
-        <div class="pagination" id="pagination"></div>
+        <div id="anime-grid"><!-- Posts will be loaded here --></div>
       
-        <div class="ad-space" id="ad-space-bottom"><!-- Ad code here --></div>
+        <div class="ad-space" id="ad-space-bottom">
+            <p><script type="text/javascript" src="//www.highperformanceformat.com/9a3d6b9a7e39bbdf97996c8f632d7307/invoke.js"></script></p>
+        </div>
     </main>
 
     <footer>
@@ -147,114 +180,53 @@
         </div>
         <p>© 2025 Anime Hangama. All Rights Reserved.</p>
     </footer>
-    
-    <!-- Tiny Slider Script -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/tiny-slider/2.9.2/min/tiny-slider.js"></script>
   
     <script>
-        // --- JAVASCRIPT LOGIC (Line 200+) ---
         document.addEventListener('DOMContentLoaded', () => {
-            // --- ELEMENT SELECTORS (Line 202) ---
+            // --- ELEMENT SELECTORS ---
             const animeGrid = document.getElementById('anime-grid');
             const tagsSlider = document.getElementById('tagsSlider');
             const gridTitle = document.getElementById('gridTitle');
-            const searchInput = document.getElementById('searchInput');
+            const searchInput = document.getElementById('searchInput'); // Desktop search
             const searchIconBtn = document.getElementById('searchIconBtn');
             const themeToggle = document.getElementById('themeToggle');
-            const paginationContainer = document.getElementById('pagination');
-            const searchHistoryContainer = document.getElementById('search-history');
-            const searchWrapper = document.getElementById('searchWrapper');
-            const logo = document.getElementById('logo');
+            const searchOverlay = document.getElementById('searchOverlay');
+            const searchInputMobile = document.getElementById('searchInputMobile');
+            const searchOverlayClose = document.getElementById('searchOverlayClose');
 
-            // --- CONFIG & STATE (Line 215) ---
+            // --- CONFIG & STATE ---
             const backendBaseUrl = 'https://anime-hangama.onrender.com';
             let isLoading = false;
-            let allPostsCache = []; // Cache for categories, tags, and client-side filtering
-            let searchHistory = JSON.parse(localStorage.getItem('searchHistory')) || [];
-            let sliderInstance = null; // To hold the slider instance
+            let allPostsCache = []; // Cache for filtering and searching
+            let currentTag = 'all';
 
-            // --- API FUNCTIONS (Line 225) ---
-
-            /**
-             * [Unchanged] Sends a signal to the backend to update view or click count for a post.
-             * @param {string} postId - The ID of the post to update.
-             * @param {'view'|'click'} type - The type of interaction.
-             */
+            // --- API FUNCTIONS ---
             const updateCounter = (postId, type) => {
                 if (!postId || !type) return;
                 const url = `${backendBaseUrl}/api/posts/${type}/${postId}`;
-                if (navigator.sendBeacon) {
-                    navigator.sendBeacon(url);
-                } else {
-                    fetch(url, { method: 'PATCH', mode: 'cors', keepalive: true }).catch(err => {});
-                }
+                fetch(url, { method: 'PATCH', mode: 'cors', keepalive: true }).catch(err => {});
             };
-            
-            /**
-             * [Unchanged] Fetches a specific page of posts from the backend.
-             * @param {number} page - The page number to fetch.
-             */
-            const fetchPaginatedPosts = async (page = 1) => {
+
+            const loadInitialData = async () => {
                 if (isLoading) return;
                 isLoading = true;
                 animeGrid.innerHTML = '<div class="grid-loader"></div>';
-                paginationContainer.innerHTML = '';
-                gridTitle.textContent = 'Latest Posts';
-                const url = `${backendBaseUrl}/api/posts?page=${page}&limit=12`;
                 try {
-                    const response = await fetch(url);
-                    if (!response.ok) throw new Error('Network error');
+                    // Fetch all posts once to build tags and for client-side filtering
+                    const response = await fetch(`${backendBaseUrl}/api/posts?limit=2000`); // Fetch a large number
+                    if (!response.ok) throw new Error('Failed to fetch initial data');
                     const data = await response.json();
-                    renderPosts(data.posts);
-                    renderPagination(data.currentPage, data.totalPages);
+                    allPostsCache = data.posts || [];
+                    loadTags(allPostsCache);
+                    renderPosts(allPostsCache); // Render all posts initially
                 } catch (error) {
                     animeGrid.innerHTML = '<p>Failed to load posts. Please try again later.</p>';
                 } finally {
                     isLoading = false;
                 }
             };
-            
-            /**
-             * [Unchanged] Fetches ALL posts to build the tag list.
-             */
-            const fetchAllPostsForCache = async () => {
-                try {
-                    const response = await fetch(`${backendBaseUrl}/api/posts?limit=2000`);
-                    const data = await response.json();
-                    allPostsCache = data.posts || [];
-                    loadTags(allPostsCache);
-                } catch (error) {
-                    console.error("Could not load all posts for cache:", error);
-                }
-            };
-            
-            /**
-             * [Unchanged] Performs a server-side search.
-             * @param {string} term - The search term.
-             */
-            const fetchSearchResults = async (term) => {
-                if (isLoading || !term) return;
-                isLoading = true;
-                animeGrid.innerHTML = '<div class="grid-loader"></div>';
-                paginationContainer.innerHTML = '';
-                gridTitle.textContent = `Search Results for "${term}"`;
-                try {
-                    const response = await fetch(`${backendBaseUrl}/api/search?q=${term}`);
-                    const results = await response.json();
-                    renderPosts(results);
-                } catch (error) {
-                    animeGrid.innerHTML = '<p>Search failed. Please try again.</p>';
-                } finally {
-                    isLoading = false;
-                }
-            };
 
-            // --- RENDER & UI FUNCTIONS (Line 315+) ---
-
-            /**
-             * [Updated] Creates tag bubbles and initializes the buttery smooth slider.
-             * @param {Array} posts - Array of all post objects.
-             */
+            // --- RENDER & UI FUNCTIONS ---
             const loadTags = (posts) => {
                 const tagSet = new Set();
                 posts.forEach(post => {
@@ -262,40 +234,22 @@
                     tags.forEach(tag => tagSet.add(tag));
                 });
 
-                if(sliderInstance) sliderInstance.destroy();
                 tagsSlider.innerHTML = '';
-                
-                const allButtonDiv = document.createElement('div');
-                allButtonDiv.className = 'item';
-                allButtonDiv.innerHTML = `<button class="tag-bubble active" data-tag="all">All</button>`;
-                tagsSlider.appendChild(allButtonDiv);
+                const allButton = document.createElement('button');
+                allButton.className = 'tag-bubble active';
+                allButton.dataset.tag = 'all';
+                allButton.textContent = 'All';
+                tagsSlider.appendChild(allButton);
 
                 tagSet.forEach(tag => {
-                    const div = document.createElement('div');
-                    div.className = 'item';
-                    div.innerHTML = `<button class="tag-bubble" data-tag="${tag}">${tag}</button>`;
-                    tagsSlider.appendChild(div);
-                });
-
-                // Initialize the smooth slider
-                sliderInstance = tns({
-                    container: '#tagsSlider',
-                    items: 3,
-                    slideBy: 'page',
-                    autoplay: false,
-                    mouseDrag: true,
-                    controls: false,
-                    nav: false,
-                    responsive: {
-                        640: { items: 5 },
-                        900: { items: 8 }
-                    }
+                    const button = document.createElement('button');
+                    button.className = 'tag-bubble';
+                    button.dataset.tag = tag;
+                    button.textContent = tag;
+                    tagsSlider.appendChild(button);
                 });
             };
 
-            /**
-             * [Unchanged] Renders an array of post objects into the anime grid.
-             */
             const renderPosts = (posts) => {
                 animeGrid.innerHTML = '';
                 if (!posts || posts.length === 0) {
@@ -307,13 +261,15 @@
                     const card = document.createElement('div');
                     card.className = 'anime-card';
                     card.innerHTML = `
-                        <div class="card-img-wrapper"><img src="${post.imageUrl}" alt="${post.title}" loading="lazy"></div>
+                        <div class="card-img-wrapper">
+                            <img src="${post.imageUrl}" alt="${post.title}" loading="lazy">
+                        </div>
                         <div class="card-content">
                             <h3 class="card-title" title="${post.title}">${post.title}</h3>
                             <div class="card-footer">
                                 <span class="view-count">
                                     <i class="material-icons" style="font-size: 1rem;">visibility</i>
-                                    <span>${(post.views || 0).toLocaleString()}</span>
+                                    <span id="views-${post._id}">${(post.views || 0).toLocaleString()}</span>
                                 </span>
                                 <a href="${post.link}" target="_blank" class="card-link" rel="noopener noreferrer">Watch Now</a>
                             </div>
@@ -330,71 +286,79 @@
                 });
             };
 
-            /**
-             * [Unchanged] Renders the pagination buttons.
-             */
-            const renderPagination = (currentPage, totalPages) => { /* ... (same as before) ... */ };
-            
-            /**
-             * [Unchanged] Updates and renders the search history dropdown.
-             */
-            const updateSearchHistory = (term) => { /* ... (same as before) ... */ };
-            const renderSearchHistory = () => { /* ... (same as before) ... */ };
+            const filterAndRender = () => {
+                let postsToRender = [...allPostsCache];
+                const searchTerm = searchInput.value.toLowerCase();
 
-            // --- EVENT LISTENERS (Line 450+) ---
+                if (currentTag !== 'all') {
+                    postsToRender = postsToRender.filter(post => (post.category || '').split(' ').includes(currentTag));
+                }
 
-            /**
-             * [Updated] Handles clicks on tag bubbles.
-             */
+                if (searchTerm) {
+                    postsToRender = postsToRender.filter(post => post.title.toLowerCase().includes(searchTerm));
+                }
+                renderPosts(postsToRender);
+            };
+
+            // --- EVENT LISTENERS ---
             tagsSlider.addEventListener('click', (e) => {
                 const button = e.target.closest('.tag-bubble');
-                if (button && !isLoading) {
-                    const tag = button.dataset.tag;
-                    gridTitle.textContent = tag === 'all' ? 'Latest Posts' : `Tag: ${tag}`;
-                    const filteredPosts = tag === 'all' ? allPostsCache : allPostsCache.filter(post => (post.category || '').split(' ').includes(tag));
-                    renderPosts(filteredPosts);
-                    paginationContainer.innerHTML = '';
+                if (button) {
+                    currentTag = button.dataset.tag;
                     document.querySelectorAll('.tag-bubble').forEach(b => b.classList.remove('active'));
                     button.classList.add('active');
+                    filterAndRender();
                 }
             });
 
-            /**
-             * [New] Handles the new responsive search icon animation.
-             */
-            searchIconBtn.addEventListener('click', () => {
-                searchInput.classList.toggle('active');
-                logo.classList.toggle('search-active');
-                if (searchInput.classList.contains('active')) {
-                    searchInput.focus();
-                } else if (searchInput.value) {
-                    fetchSearchResults(searchInput.value.trim());
-                    updateSearchHistory(searchInput.value.trim());
+            // Search functionality
+            const performSearch = (term) => {
+                const searchTerm = term.toLowerCase();
+                const filteredPosts = allPostsCache.filter(post => post.title.toLowerCase().includes(searchTerm));
+                renderPosts(filteredPosts);
+                gridTitle.textContent = searchTerm ? `Search Results for "${searchTerm}"` : 'Latest Posts';
+            };
+
+            // Desktop search (live search)
+            searchInput.addEventListener('input', () => {
+                performSearch(searchInput.value);
+            });
+            searchInput.addEventListener('focus', () => searchInput.classList.add('active'));
+            searchInput.addEventListener('blur', () => { if(!searchInput.value) searchInput.classList.remove('active'); });
+
+            // Mobile search (overlay)
+            searchIconBtn.addEventListener('click', (e) => {
+                if (window.innerWidth <= 768) {
+                    searchOverlay.classList.add('active');
+                    searchInputMobile.focus();
                 } else {
-                    fetchPaginatedPosts(1);
+                    searchInput.classList.toggle('active');
+                    searchInput.focus();
                 }
             });
-            
-            /**
-             * [Unchanged] Handles search on pressing Enter.
-             */
-            searchInput.addEventListener('keyup', (e) => {
+            searchOverlayClose.addEventListener('click', () => searchOverlay.classList.remove('active'));
+            searchInputMobile.addEventListener('keyup', (e) => {
                 if (e.key === 'Enter') {
-                    const term = searchInput.value.trim();
-                    if(term) {
-                        fetchSearchResults(term);
-                        updateSearchHistory(term);
-                        searchHistoryContainer.style.display = 'none';
-                    }
+                    performSearch(e.target.value);
+                    searchOverlay.classList.remove('active');
                 }
             });
-            
-            // ... (All other event listeners are unchanged)
 
-            // --- INITIAL LOAD (Line 550+) ---
+            const handleThemeToggle = () => {
+                const newTheme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+                document.documentElement.setAttribute('data-theme', newTheme);
+                localStorage.setItem('theme', newTheme);
+            };
+            themeToggle.addEventListener('click', handleThemeToggle);
+            
+            const loadSavedTheme = () => {
+                const savedTheme = localStorage.getItem('theme');
+                if (savedTheme) document.documentElement.setAttribute('data-theme', savedTheme);
+            };
+
+            // --- INITIAL LOAD ---
             loadSavedTheme();
-            fetchPaginatedPosts(1);
-            fetchAllPostsForCache();
+            loadInitialData();
         });
     </script>
 </body>
