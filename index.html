@@ -11,7 +11,7 @@
         /* --- Root Variables and Basic Setup --- */
         :root {
             --font-family: 'Poppins', sans-serif;
-            --radius-1: 8px; --radius-2: 15px;
+            --radius-1: 8px; --radius-2: 50px; /* Fully rounded buttons */
             --transition-1: 0.2s ease;
         }
         html[data-theme="light"] {
@@ -33,48 +33,72 @@
             transition: background-color var(--transition-1), color var(--transition-1);
         }
         .container { width: 95%; max-width: 1300px; margin: 0 auto; }
+        a { color: var(--accent-color); text-decoration: none; }
 
-        /* --- Header & Navigation --- */
+        /* --- HEADER FIXES --- */
         header {
             background-color: var(--bg-secondary); border-bottom: 1px solid var(--border-color);
-            padding: 1rem 0; position: sticky; top: 0; z-index: 100;
+            padding: 0.8rem 0; position: sticky; top: 0; z-index: 100;
             box-shadow: 0 2px 10px var(--shadow-color);
         }
-        .header-container { display: flex; justify-content: space-between; align-items: center; }
-        .logo { font-size: 1.6rem; font-weight: 700; color: var(--accent-color); text-decoration: none; }
-        nav { display: flex; align-items: center; gap: 1rem; }
+        .header-container { display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
+        .logo { 
+            font-size: 1.4rem; /* Smaller font size */
+            font-weight: 700; color: var(--accent-color); text-decoration: none;
+            white-space: nowrap; /* Prevents wrapping */
+        }
+        nav { display: flex; align-items: center; gap: 0.5rem; } /* Reduced gap */
         .search-wrapper { display: flex; align-items: center; }
         .search-input {
             width: 0; padding: 0; border: none; outline: none; border-radius: var(--radius-2);
-            background-color: transparent; font-size: 1rem; color: var(--text-primary);
-            transition: 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            background-color: transparent; font-size: 0.9rem; color: var(--text-primary);
+            transition: 0.4s ease;
         }
         .search-input.active {
-            width: 200px; padding: 0.6rem 1rem; border: 1px solid var(--border-color);
+            width: 150px; /* Fixed width */
+            padding: 0.6rem 1rem; border: 1px solid var(--border-color);
             background-color: var(--bg-primary);
         }
         .search-icon-btn, .theme-toggle-btn {
             background: none; border: none; cursor: pointer; color: var(--text-secondary);
             display: flex; align-items: center; justify-content: center; padding: 0.5rem;
+            flex-shrink: 0; /* Prevents icons from shrinking */
         }
-        .theme-toggle-btn i { font-size: 1.5rem; }
+        .theme-toggle-btn i { font-size: 1.4rem; }
 
-        /* --- Main Content --- */
+        /* --- MAIN CONTENT & NEW CATEGORY SLIDER --- */
         main { padding: 2rem 0; }
         .section-title { text-align: center; font-size: 1.8rem; margin-bottom: 1.5rem; }
+        .filters-container { 
+            position: relative; 
+            margin-bottom: 2.5rem;
+        }
+        .category-filters { 
+            display: flex; 
+            overflow-x: auto; /* Enables horizontal scroll */
+            padding: 0.5rem 0 1rem 0; /* Space for items and scrollbar */
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+            scroll-behavior: smooth;
+        }
+        .category-filters::-webkit-scrollbar { display: none; } /* Hide scrollbar for Chrome, Safari */
+        .category-filters::before, .category-filters::after {
+            content: ''; position: absolute; top: 0; height: calc(100% - 1rem); /* Adjust height to not cover scrollbar space */
+            width: 50px; z-index: 2; pointer-events: none;
+        }
+        .category-filters::before { left: -1px; background: linear-gradient(to right, var(--bg-primary), transparent); }
+        .category-filters::after { right: -1px; background: linear-gradient(to left, var(--bg-primary), transparent); }
 
-        /* --- Category Filters --- */
-        .filters-container { margin-bottom: 2.5rem; }
-        .category-filters { display: flex; justify-content: center; flex-wrap: wrap; gap: 0.75rem; }
         .filter-btn {
             padding: 0.6rem 1.2rem; background: var(--bg-secondary); border: 1px solid var(--border-color);
             border-radius: var(--radius-2); color: var(--text-secondary); font-weight: 600; cursor: pointer;
-            transition: var(--transition-1);
+            transition: var(--transition-1); white-space: nowrap; flex-shrink: 0;
         }
+        .filter-btn:not(:last-child) { margin-right: 0.75rem; }
         .filter-btn:hover { background-color: var(--border-color); }
         .filter-btn.active { background-color: var(--accent-color); color: #fff; border-color: var(--accent-color); }
-
-        /* --- Anime Grid & Cards --- */
+        
+        /* --- ANIME GRID --- */
         #anime-grid {
             display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
             gap: 1.5rem; min-height: 200px;
@@ -87,21 +111,21 @@
         }
         .anime-card:hover { transform: translateY(-8px); }
         .card-img-wrapper {
-            width: 100%; padding-top: 140%; /* Aspect ratio 10:14 for vertical images */
+            width: 100%; padding-top: 140%;
             position: relative; background-color: var(--border-color);
         }
         .card-img-wrapper img {
             position: absolute; top: 0; left: 0;
             width: 100%; height: 100%;
-            object-fit: cover; /* This makes the image fit perfectly */
+            object-fit: cover; /* Image fix */
         }
         .card-content { padding: 1rem; flex-grow: 1; display: flex; flex-direction: column; }
         .card-title { font-size: 1.1rem; font-weight: 600; margin-bottom: auto; }
         .card-footer { display: flex; justify-content: space-between; align-items: center; color: var(--text-secondary); font-size: 0.9rem; margin-top: 1rem; }
         .view-count { display: flex; align-items: center; gap: 0.3rem; }
         .card-link { color: var(--accent-color); text-decoration: none; font-weight: 600; }
-
-        /* --- Pagination --- */
+        
+        /* --- PAGINATION & AD SPACE --- */
         .pagination-container { text-align: center; margin-top: 2.5rem; }
         .load-more-btn {
             padding: 0.8rem 2.5rem; font-size: 1rem; font-weight: 600;
@@ -112,18 +136,19 @@
         .load-more-btn:disabled { background-color: #555; cursor: not-allowed; }
         .hidden { display: none; }
 
-        /* --- Ad Space & Footer --- */
         .ad-space {
-            background-color: var(--bg-secondary); border: 1px solid var(--border-color);
-            border-radius: var(--radius-1); margin: 2rem auto; padding: 1rem;
             display: flex; align-items: center; justify-content: center;
-            text-align: center; color: var(--text-secondary); min-height: 90px;
-            width: 100%; max-width: 728px;
+            margin: 2rem auto; width: 100%; max-width: 728px;
         }
-        #ad-space-bottom { max-width: 300px; }
-        footer { text-align: center; padding: 1.5rem 0; margin-top: 2rem; background-color: var(--bg-secondary); border-top: 1px solid var(--border-color); color: var(--text-secondary); }
+        .ad-space > * { max-width: 100%; } /* Ad content fit fix */
+        
+        /* --- FOOTER FIXES --- */
+        footer { text-align: center; padding: 1.5rem 0; margin-top: 2rem; background-color: var(--bg-secondary); border-top: 1px solid var(--border-color); }
+        .footer-links { display: flex; justify-content: center; gap: 1.5rem; margin-bottom: 0.8rem; }
+        .footer-links a { color: var(--text-secondary); font-size: 0.9rem; }
+        footer p { color: var(--text-secondary); font-size: 0.8rem; }
 
-        /* --- Loader Animations --- */
+        /* --- LOADER --- */
         .grid-loader {
             width: 50px; height: 50px; border: 5px solid var(--border-color);
             border-top-color: var(--accent-color); border-radius: 50%;
@@ -134,13 +159,12 @@
     </style>
 </head>
 <body>
-
     <header>
         <div class="container header-container">
             <a href="/" class="logo">Anime Hangama</a>
             <nav>
                 <div class="search-wrapper">
-                    <input type="text" id="searchInput" class="search-input" placeholder="Search titles...">
+                    <input type="text" id="searchInput" class="search-input" placeholder="Search...">
                     <button class="search-icon-btn" id="searchIconBtn"><i class="material-icons">search</i></button>
                 </div>
                 <button class="theme-toggle-btn" id="themeToggle" title="Toggle Theme"><i class="material-icons">brightness_6</i></button>
@@ -149,27 +173,19 @@
     </header>
 
     <main class="container">
-        
         <div class="ad-space" id="ad-space-top">
-             <p><script type="text/javascript" src="//www.highperformanceformat.com/0dc39fcf5a51b8f5b9473304925acc62/invoke.js"></script></p>
+             <p><script type="text/javascript" src="//www.highperformanceformat.com/0dc3cf5a51b8f5b9473304925acc62/invoke.js"></script></p>
         </div>
 
         <div class="filters-container">
             <h2 class="section-title">Browse by Category</h2>
             <div class="category-filters" id="categoryFilters">
-                <button class="filter-btn active" data-category="all">All</button>
-                <button class="filter-btn" data-category="Action">Action</button>
-                <button class="filter-btn" data-category="Comedy">Comedy</button>
-                <button class="filter-btn" data-category="Romance">Romance</button>
-                <button class="filter-btn" data-category="Shounen">Shounen</button>
-                <button class="filter-btn" data-category="Isekai">Isekai</button>
+                <!-- Categories will be loaded here dynamically -->
             </div>
         </div>
         
         <h2 class="section-title" id="gridTitle">Latest Posts</h2>
-        <div id="anime-grid">
-            <!-- Posts will be loaded here by JavaScript -->
-        </div>
+        <div id="anime-grid"><!-- Posts will be loaded here --></div>
         
         <div class="pagination-container" id="paginationContainer">
             <button id="loadMoreBtn" class="load-more-btn">Load More</button>
@@ -178,16 +194,20 @@
         <div class="ad-space" id="ad-space-bottom">
             <p><script type="text/javascript" src="//www.highperformanceformat.com/9a3d6b9a7e39bbdf97996c8f632d7307/invoke.js"></script></p>
         </div>
-
     </main>
 
     <footer>
+        <div class="footer-links">
+            <a href="/disclaimer.html">Disclaimer</a>
+            <a href="/dmca.html">DMCA</a>
+            <a href="/about-us.html">About Us</a>
+        </div>
         <p>© 2025 Anime Hangama. All Rights Reserved.</p>
     </footer>
   
     <script>
-        // --- अंतिम, पूरा और शक्तिशाली फ्रंटएंड कोड ---
         document.addEventListener('DOMContentLoaded', () => {
+            // --- ELEMENT SELECTORS ---
             const animeGrid = document.getElementById('anime-grid');
             const categoryFilters = document.getElementById('categoryFilters');
             const loadMoreBtn = document.getElementById('loadMoreBtn');
@@ -196,14 +216,16 @@
             const searchIconBtn = document.getElementById('searchIconBtn');
             const themeToggle = document.getElementById('themeToggle');
 
+            // --- CONFIG & STATE ---
             const backendBaseUrl = 'https://anime-hangama.onrender.com';
             let currentPage = 1;
             let totalPages = 1;
             let currentCategory = 'all';
             let currentSearchTerm = '';
             let isLoading = false;
-            let allPosts = [];
+            let allPostsCache = []; // Cache for client-side search and categories
 
+            // --- API FUNCTIONS ---
             const updateCounter = (postId, type) => {
                 if (!postId || !type) return;
                 const url = `${backendBaseUrl}/api/posts/${type}/${postId}`;
@@ -245,6 +267,34 @@
                     loadMoreBtn.textContent = 'Load More';
                 }
             };
+            
+            const fetchAllPostsForCategories = async () => {
+                try {
+                    const response = await fetch(`${backendBaseUrl}/api/posts?limit=1000`);
+                    const data = await response.json();
+                    allPostsCache = data.posts || [];
+                    loadCategories(allPostsCache);
+                } catch (error) {
+                    console.error("Could not load categories:", error);
+                }
+            };
+            
+            // --- RENDER & UI FUNCTIONS ---
+            const loadCategories = (posts) => {
+                const categories = ['All', ...new Set(posts.map(p => p.category).filter(Boolean))];
+                categoryFilters.innerHTML = '';
+                categories.forEach(cat => {
+                    const button = document.createElement('button');
+                    button.className = 'filter-btn';
+                    const categoryId = cat === 'All' ? 'all' : cat;
+                    button.dataset.category = categoryId;
+                    button.textContent = cat;
+                    if (categoryId.toLowerCase() === currentCategory.toLowerCase()) {
+                        button.classList.add('active');
+                    }
+                    categoryFilters.appendChild(button);
+                });
+            };
 
             const renderPosts = (posts, isNewSearch) => {
                 if (isNewSearch) animeGrid.innerHTML = '';
@@ -270,7 +320,6 @@
                             </div>
                         </div>
                     `;
-                    
                     const cardLink = card.querySelector('.card-link');
                     cardLink.addEventListener('click', (e) => { e.stopPropagation(); updateCounter(post._id, 'click'); });
                     card.addEventListener('click', (e) => {
@@ -292,14 +341,16 @@
                 }
             };
             
+            // --- EVENT LISTENERS ---
             categoryFilters.addEventListener('click', (e) => {
-                if (e.target.tagName === 'BUTTON' && !isLoading) {
-                    document.querySelector('.filter-btn.active').classList.remove('active');
-                    e.target.classList.add('active');
-                    currentCategory = e.target.dataset.category;
+                const button = e.target.closest('.filter-btn');
+                if (button && !isLoading) {
+                    document.querySelector('.filter-btn.active')?.classList.remove('active');
+                    button.classList.add('active');
+                    currentCategory = button.dataset.category;
                     currentSearchTerm = '';
                     searchInput.value = '';
-                    gridTitle.textContent = currentCategory === 'all' ? 'Latest Posts' : `${currentCategory} Anime`;
+                    gridTitle.textContent = currentCategory === 'all' ? 'Latest Posts' : `${button.textContent} Anime`;
                     fetchPosts(1, currentCategory);
                 }
             });
@@ -311,15 +362,30 @@
             });
 
             const handleSearch = () => {
-                currentSearchTerm = searchInput.value.trim();
-                currentCategory = 'all'; // Reset category when searching
-                document.querySelector('.filter-btn.active').classList.remove('active');
-                document.querySelector('.filter-btn[data-category="all"]').classList.add('active');
+                const searchTerm = searchInput.value.trim().toLowerCase();
+                if (searchTerm === currentSearchTerm) return;
+                currentSearchTerm = searchTerm;
+                currentCategory = 'all';
+                document.querySelector('.filter-btn.active')?.classList.remove('active');
+                document.querySelector('.filter-btn[data-category="all"]')?.classList.add('active');
                 gridTitle.textContent = currentSearchTerm ? `Search Results for "${currentSearchTerm}"` : 'Latest Posts';
-                fetchPosts(1, 'all', currentSearchTerm);
+                if (currentSearchTerm) {
+                    const filteredPosts = allPostsCache.filter(post => post.title.toLowerCase().includes(currentSearchTerm));
+                    renderPosts(filteredPosts, true);
+                    updatePaginationState();
+                } else {
+                    fetchPosts(1, 'all');
+                }
             };
             searchInput.addEventListener('keyup', (e) => { if (e.key === 'Enter') handleSearch(); });
-            searchIconBtn.addEventListener('click', () => { searchInput.classList.toggle('active'); if(searchInput.classList.contains('active')) searchInput.focus(); else handleSearch(); });
+            searchIconBtn.addEventListener('click', () => { 
+                searchInput.classList.toggle('active'); 
+                if (searchInput.classList.contains('active')) {
+                    searchInput.focus();
+                } else if(searchInput.value) {
+                    handleSearch();
+                }
+            });
             
             const handleThemeToggle = () => {
                 const newTheme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
@@ -333,8 +399,10 @@
                 if (savedTheme) document.documentElement.setAttribute('data-theme', savedTheme);
             };
 
+            // --- INITIAL LOAD ---
             loadSavedTheme();
             fetchPosts(1, 'all');
+            fetchAllPostsForCategories(); // Fetch all posts in the background for category list
         });
     </script>
 </body>
