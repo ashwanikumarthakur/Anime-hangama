@@ -151,7 +151,7 @@
 <body>
     <header>
         <div class="container header-container">
-            <a href="/" class="logo" id="logo">Anime Hangama</a>
+            <a href="#" class="logo" id="logo">Anime Hangama</a>
             <nav>
                 <div class="search-wrapper" id="searchWrapper">
                     <input type="text" id="searchInput" class="search-input" placeholder="Search...">
@@ -199,6 +199,18 @@
             const searchHistoryContainer = document.getElementById('search-history');
             const searchWrapper = document.getElementById('searchWrapper');
             const logo = document.getElementById('logo');
+
+
+/**
+ * Handles click on the logo to refresh the page.
+ */
+logo.addEventListener('click', (e) => {
+    e.preventDefault(); // Prevents the '#' from being added to the URL
+    location.reload();  // Reloads the entire page
+});
+
+
+            
 
             const backendBaseUrl = 'https://anime-hangama.onrender.com';
             let isLoading = false;
