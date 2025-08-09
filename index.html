@@ -17,11 +17,13 @@
             --bg-primary: #f0f2f5; --bg-secondary: #ffffff;
             --text-primary: #1c1e21; --text-secondary: #65676b;
             --border-color: #e0e0e0; --accent-color: #1877f2;
+            --skeleton-glow-color: #f5f5f5; /* <-- यह नई लाइन जोड़ें (हल्की चमक) */
         }
         html[data-theme="dark"] {
             --bg-primary: #18191a; --bg-secondary: #242526;
             --text-primary: #e4e6eb; --text-secondary: #b0b3b8;
             --border-color: #3a3b3c; --accent-color: #2374e1;
+            --skeleton-glow-color: #4a4e54; /* <-- यह नई लाइन जोड़ें (गहरी चमक) */
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -174,14 +176,17 @@
     border-radius: 4px;
 }
 
-                /* The glowing animation (Slower and Softer) */
+
+
+
+                /* The glowing animation (Now Theme-Aware) */
         .skeleton-card .skeleton-image,
         .skeleton-card .skeleton-title,
         .skeleton-card .skeleton-footer {
-            /* We use a slightly lighter grey for a more subtle glow */
+            /* Now using the new variable for the glow, which changes with the theme */
             background-image: linear-gradient(90deg, 
                 var(--border-color) 30%, 
-                #4a4e54 50%, 
+                var(--skeleton-glow-color) 50%, 
                 var(--border-color) 70%);
             background-size: 200% 100%;
             /* Slower animation duration */
