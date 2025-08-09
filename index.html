@@ -173,21 +173,26 @@
     background: var(--border-color);
     border-radius: 4px;
 }
-/* The glowing animation */
-.skeleton-card .skeleton-image,
-.skeleton-card .skeleton-title,
-.skeleton-card .skeleton-footer {
-    background-image: linear-gradient(90deg, 
-        var(--border-color) 25%, 
-        var(--text-secondary) 50%, 
-        var(--border-color) 75%);
-    background-size: 200% 100%;
-    animation: skeleton-glow 1.5s infinite linear;
-}
-@keyframes skeleton-glow {
-    0% { background-position: 200% 0; }
-    100% { background-position: -200% 0; }
-}
+
+                /* The glowing animation (Slower and Softer) */
+        .skeleton-card .skeleton-image,
+        .skeleton-card .skeleton-title,
+        .skeleton-card .skeleton-footer {
+            /* We use a slightly lighter grey for a more subtle glow */
+            background-image: linear-gradient(90deg, 
+                var(--border-color) 30%, 
+                #4a4e54 50%, 
+                var(--border-color) 70%);
+            background-size: 200% 100%;
+            /* Slower animation duration */
+            animation: skeleton-glow 2.5s infinite linear; 
+        }
+
+        @keyframes skeleton-glow {
+            /* The glow doesn't travel as far, making it feel less intense */
+            0% { background-position: 150% 0; } 
+            100% { background-position: -150% 0; }
+        }
 
 
 
