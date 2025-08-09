@@ -146,6 +146,52 @@
         .footer-links { display: flex; justify-content: center; gap: 1.5rem; margin-bottom: 0.8rem; }
         .footer-links a { color: var(--text-secondary); font-size: 0.8rem; }
         footer p { color: var(--text-secondary); font-size: 0.8rem; }
+
+
+/* --- NEW SKELETON LOADER STYLES (YouTube Style) --- */
+.skeleton-card {
+    background-color: var(--bg-secondary);
+    border-radius: var(--radius-1);
+    overflow: hidden;
+}
+.skeleton-image {
+    width: 100%;
+    padding-top: 140%; /* Same aspect ratio as real cards */
+    background: var(--border-color);
+}
+.skeleton-content { padding: 1rem; }
+.skeleton-title {
+    height: 1.1rem;
+    width: 80%;
+    background: var(--border-color);
+    border-radius: 4px;
+    margin-bottom: 1rem;
+}
+.skeleton-footer {
+    height: 0.9rem;
+    width: 50%;
+    background: var(--border-color);
+    border-radius: 4px;
+}
+/* The glowing animation */
+.skeleton-card .skeleton-image,
+.skeleton-card .skeleton-title,
+.skeleton-card .skeleton-footer {
+    background-image: linear-gradient(90deg, 
+        var(--border-color) 25%, 
+        var(--text-secondary) 50%, 
+        var(--border-color) 75%);
+    background-size: 200% 100%;
+    animation: skeleton-glow 1.5s infinite linear;
+}
+@keyframes skeleton-glow {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+
+
+        
     </style>
 </head>
 <body>
@@ -230,7 +276,7 @@ logo.addEventListener('click', (e) => {
             const fetchPaginatedPosts = async (page = 1) => {
                 if (isLoading) return;
                 isLoading = true;
-                animeGrid.innerHTML = '<div class="grid-loader"></div>';
+                renderSkeletonLoader();
                 paginationContainer.innerHTML = '';
                 gridTitle.textContent = 'Latest Posts';
                 const url = `${backendBaseUrl}/api/posts?page=${page}&limit=12`;
@@ -261,7 +307,7 @@ logo.addEventListener('click', (e) => {
             const fetchSearchResults = async (term) => {
                 if (isLoading || !term) return;
                 isLoading = true;
-                animeGrid.innerHTML = '<div class="grid-loader"></div>';
+                renderSkeletonLoader();
                 paginationContainer.innerHTML = '';
                 gridTitle.textContent = `Search Results for "${term}"`;
                 try {
@@ -278,6 +324,31 @@ logo.addEventListener('click', (e) => {
                 }
             };
 
+
+
+
+        const renderSkeletonLoader = () => {
+            animeGrid.innerHTML = '';
+            for (let i = 0; i < 8; i++) {
+                const skeletonCard = document.createElement('div');
+                skeletonCard.className = 'skeleton-card';
+                skeletonCard.innerHTML = `
+                    <div class="skeleton-image"></div>
+                    <div class="skeleton-content">
+                        <div class="skeleton-title"></div>
+                        <div class="skeleton-footer"></div>
+                    </div>
+                `;
+                animeGrid.appendChild(skeletonCard);
+            }
+        };
+
+        const loadTags = (posts) => { // ... (आपका मौजूदा कोड यहाँ से शुरू होगा)
+
+
+
+
+            
             const loadTags = (posts) => {
                 const tagSet = new Set();
                 posts.forEach(post => {
