@@ -467,38 +467,22 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
 
-// Replace your existing updateCounter with this:
-const updateCounter = (postId, type) => {
-  if (!postId || !type) return;
-
-  const url = `${backendBaseUrl}/api/posts/${type}/${postId}`;
-
-  // Optimistic UI update for views (so user/admin sees immediate change)
-  if (type === 'view') {
-    const el = document.getElementById(`views-${postId}`);
-    if (el) {
-      const n = parseInt(el.textContent.replace(/,/g, '')) || 0;
-      el.textContent = (n + 1).toLocaleString();
+// Click anywhere else on the card → count view
+card.addEventListener('click', async (e) => {
+    if (e.target.closest('.card-link')) return; // Ignore if link clicked
+    
+    try {
+        await fetch(`${backendBaseUrl}/api/posts/view/${post._id}`, {
+            method: 'PATCH',
+            mode: 'cors',
+            keepalive: true
+        });
+    } catch (err) {
+        console.error('View count update failed', err);
     }
-  }
 
-  // Always try PATCH because backend routes expect PATCH
-  // use keepalive so request has higher chance to complete on navigation/unload
-  try {
-    fetch(url, {
-      method: 'PATCH',
-      mode: 'cors',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({}), // empty body is fine; keeps request consistent
-      keepalive: true
-    }).catch(err => {
-      // Log for debugging; don't block user
-      console.warn('Counter update failed:', err);
-    });
-  } catch (err) {
-    console.warn('Counter update exception:', err);
-  }
-};
+    window.open(post.link, '_blank');
+});
 
             
     /* ----------------------
