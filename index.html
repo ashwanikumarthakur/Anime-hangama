@@ -467,62 +467,20 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
 
-const renderPosts = (posts) => {
-    const animeGrid = document.getElementById('anime-grid');
-    animeGrid.innerHTML = ''; // Remove skeletons
+// Click anywhere else on the card → count view
+card.addEventListener('click', (e) => {
+if (e.target.closest('.card-link')) return; // Ignore if link clicked
+updateCounter(post._id, 'view');
+window.open(post.link, '_blank');
+});
 
-    posts.forEach(post => {
-        const card = document.createElement('div');
-        card.className = 'card';
-        card.dataset.id = post._id;
-        card.dataset.link = post.link;
-
-        card.innerHTML = `
-            <a href="${post.link}" target="_blank" class="card-link" data-id="${post._id}">
-                <img src="${post.image}" alt="${post.title}" class="card-img">
-            </a>
-            <div class="card-content">
-                <h3>${post.title}</h3>
-                <p>Views: <span id="views-${post._id}">${post.views.toLocaleString()}</span></p>
-                <p>Clicks: <span id="clicks-${post._id}">${post.clicks.toLocaleString()}</span></p>
-            </div>
-        `;
-
-        // Click on link → count click
-        const link = card.querySelector('.card-link');
-        link.addEventListener('click', async (e) => {
-            e.preventDefault(); // stop instant navigation
-            try {
-                await fetch(`${backendBaseUrl}/api/posts/click/${post._id}`, {
-                    method: 'PATCH',
-                    mode: 'cors',
-                    keepalive: true
-                });
-            } catch (err) {
-                console.error('Click count update failed', err);
-            }
-            window.open(post.link, '_blank');
-        });
-
-        // Click anywhere else on the card → count view
-        card.addEventListener('click', async (e) => {
-            if (e.target.closest('.card-link')) return; // skip if link
-            try {
-                await fetch(`${backendBaseUrl}/api/posts/view/${post._id}`, {
-                    method: 'PATCH',
-                    mode: 'cors',
-                    keepalive: true
-                });
-            } catch (err) {
-                console.error('View count update failed', err);
-            }
-            window.open(post.link, '_blank');
-        });
-
-        animeGrid.appendChild(card);
-    });
+animeGrid.appendChild(card);  
+    });  
 };
 
+Ye likha hai is line ko bas naye Wale se replace kar du ?
+
+    
 
             
             
