@@ -422,66 +422,68 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     
-    /* ----------------------
-       RENDER POSTS TO GRID (FIXED)
-       ---------------------- */
-    const renderPosts = (posts) => {
-        animeGrid.innerHTML = '';
 
-        if (!posts || posts.length === 0) {
-            animeGrid.innerHTML = '<p style="grid-column: 1 / -1; text-align: center;">No posts found.</p>';
-            return;
-        }
-
-        posts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-
-        posts.forEach(post => {
-            const card = document.createElement('div');
-            card.className = 'anime-card';
-            card.innerHTML = `
-                <div class="card-img-wrapper">
-                    <img src="${post.imageUrl}" alt="${post.title}" loading="lazy">
-                </div>
-                <div class="card-content">
-                    <h3 class="card-title" title="${post.title}">${post.title}</h3>
-                    <div class="card-footer">
-                        <span class="view-count">
-                            <i class="material-icons" style="font-size: 1rem;">visibility</i>
-                            <span id="views-${post._id}">${(post.views || 0).toLocaleString()}</span>
-                        </span>
-                        <a href="${post.link}" target="_blank" class="card-link" rel="noopener noreferrer">Watch Now</a>
-                    </div>
-                </div>
-            `;
-
-            const cardLink = card.querySelector('.card-link');
-
-            cardLink.addEventListener('click', (e) => {
-                e.stopPropagation();
-                updateCounter(post._id, 'click');
-            });
-
-            card.addEventListener('click', (e) => {
-                if (e.target.closest('.card-link')) return;
-
-                // --- YAHI HAI SABSE ZAROORI BADLAV ---
-                // Click hote hi screen par number ko turant badhao
-                const viewElement = document.getElementById(`views-${post._id}`);
-                if (viewElement) {
-                    // Purane number ko padho, usme 1 jodo, aur wapas likh do
-                    const currentViews = parseInt(viewElement.textContent.replace(/,/g, '')) || 0;
-                    viewElement.textContent = (currentViews + 1).toLocaleString();
+                /**
+             * [FINAL & CORRECT] Renders posts, attaches event listeners for counting,
+             * and provides immediate visual feedback.
+             */
+            const renderPosts = (posts) => {
+                animeGrid.innerHTML = '';
+                if (!posts || posts.length === 0) {
+                    animeGrid.innerHTML = '<p style="grid-column: 1 / -1; text-align: center;">No posts found.</p>';
+                    return;
                 }
-                // --- BADLAV KHATAM ---
+                posts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+                
+                posts.forEach(post => {
+                    const card = document.createElement('div');
+                    card.className = 'anime-card';
+                    card.innerHTML = `
+                        <div class="card-img-wrapper">
+                            <img src="${post.imageUrl}" alt="${post.title}" loading="lazy">
+                        </div>
+                        <div class="card-content">
+                            <h3 class="card-title" title="${post.title}">${post.title}</h3>
+                            <div class="card-footer">
+                                <span class="view-count">
+                                    <i class="material-icons" style="font-size: 1rem;">visibility</i>
+                                    <span id="views-${post._id}">${(post.views || 0).toLocaleString()}</span>
+                                </span>
+                                <a href="${post.link}" target="_blank" class="card-link" rel="noopener noreferrer">Watch Now</a>
+                            </div>
+                        </div>
+                    `;
+                    
+                    const cardLink = card.querySelector('.card-link');
 
-                // Ab server ko signal bhejo (jaisa aap pehle kar rahe the)
-                updateCounter(post._id, 'view');
-                window.open(post.link, '_blank');
-            });
+                    // Event listener for the "Watch Now" button (counts clicks)
+                    cardLink.addEventListener('click', (e) => { 
+                        e.stopPropagation(); // Prevents the card's click event from also firing
+                        updateCounter(post._id, 'click'); 
+                    });
 
-            animeGrid.appendChild(card);
-        });
-    };
+                    // Event listener for the entire card (counts views)
+                    card.addEventListener('click', (e) => {
+                        // Ensure we don't count a view if the "Watch Now" button was the target
+                        if (e.target.closest('.card-link')) return;
+
+                        // 1. Immediate visual update
+                        const viewElement = document.getElementById(`views-${post._id}`);
+                        if (viewElement) {
+                            const currentViews = parseInt(viewElement.textContent.replace(/,/g, '')) || 0;
+                            viewElement.textContent = (currentViews + 1).toLocaleString();
+                        }
+                        
+                        // 2. Send the actual update to the server
+                        updateCounter(post._id, 'view');
+                        
+                        // 3. Open the link in a new tab
+                        window.open(post.link, '_blank');
+                    });
+
+                    animeGrid.appendChild(card);
+                });
+            };
 
     
 
