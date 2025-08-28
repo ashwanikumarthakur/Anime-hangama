@@ -437,9 +437,9 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     
-    /* ----------------------
+        /* ----------------------
        RENDER POSTS TO GRID
-       (FIXED to provide immediate visual feedback and send server updates)
+       (FIXED with the missing span for view count)
        ---------------------- */
     const renderPosts = (posts) => {
         animeGrid.innerHTML = '';
@@ -456,7 +456,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const card = document.createElement('div');
             card.className = 'anime-card';
 
-            // Card HTML structure
+            // Card HTML structure (with the corrected span)
             card.innerHTML = `
                 <div class="card-img-wrapper">
                     <img src="${post.imageUrl}" alt="${post.title}" loading="lazy">
