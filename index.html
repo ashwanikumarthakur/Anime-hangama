@@ -277,24 +277,39 @@ document.addEventListener('DOMContentLoaded', () => {
     let allPostsCache = [];               // Stores all posts for search/tag filtering
     let searchHistory = JSON.parse(localStorage.getItem('searchHistory')) || []; // Local search history
 
-    /* ----------------------
-       UPDATE COUNTER (Views/Clicks)
-       Sends view/click update request to backend
-       ---------------------- */
-    const updateCounter = (postId, type) => {
-        if (!postId || !type) return; // Guard: no id or type means skip
+                /**
+             * [FINAL & CORRECTED] Sends a signal to the backend to update 
+             * view or click count for a post, using the full and correct URL.
+             * @param {string} postId - The ID of the post to update.
+             * @param {'view'|'click'} type - The type of interaction.
+             */
+            const updateCounter = (postId, type) => {
+                // Ensure we have the required parameters
+                if (!postId || !type) {
+                    console.error("updateCounter called with invalid parameters.");
+                    return;
+                }
+                
+                // --- THIS IS THE CRITICAL FIX ---
+                // We construct the full, absolute URL to the backend server.
+                const url = `${backendBaseUrl}/api/posts/${type}/${postId}`;
+                // --------------------------------
 
-        const url = `${backendBaseUrl}/api/posts/${type}/${postId}`;
-
-        // Try using sendBeacon for background request
-        if (navigator.sendBeacon) {
-            navigator.sendBeacon(url);
-        } else {
-            // Fallback: fetch with PATCH (if sendBeacon not supported)
-            fetch(url, { method: 'PATCH', mode: 'cors', keepalive: true })
-                .catch(err => {});
-        }
-    };
+                // Use sendBeacon for reliability, as it works even if the page is closing
+                if (navigator.sendBeacon) {
+                    // It's a fire-and-forget request, no need to handle response
+                    navigator.sendBeacon(url);
+                } else {
+                    // Fallback for older browsers
+                    fetch(url, { 
+                        method: 'PATCH', 
+                        mode: 'cors', 
+                        keepalive: true 
+                    }).catch(err => {
+                        console.error("Fetch fallback for counter failed:", err);
+                    });
+                }
+            };
 
     /* ----------------------
        FETCH PAGINATED POSTS
