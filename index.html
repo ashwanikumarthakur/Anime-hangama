@@ -436,73 +436,68 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-    
-        /* ----------------------
-       RENDER POSTS TO GRID
-       (FIXED with the missing span for view count)
-       ---------------------- */
-    const renderPosts = (posts) => {
-        animeGrid.innerHTML = '';
 
-        if (!posts || posts.length === 0) {
-            animeGrid.innerHTML = '<p style="grid-column: 1 / -1; text-align: center;">No posts found.</p>';
-            return;
-        }
-
-        // Sort by creation date (newest first)
-        posts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-
-        posts.forEach(post => {
-            const card = document.createElement('div');
-            card.className = 'anime-card';
-
-            // Card HTML structure (with the corrected span)
-            card.innerHTML = `
-                <div class="card-img-wrapper">
-                    <img src="${post.imageUrl}" alt="${post.title}" loading="lazy">
-                </div>
-                <div class="card-content">
-                    <h3 class="card-title" title="${post.title}">${post.title}</h3>
-                    <div class="card-footer">
-                        <span class="view-count">
-                            <i class="material-icons" style="font-size: 1rem;">visibility</i>
-                            <span id="views-${post._id}">${(post.views || 0).toLocaleString()}</span>
-                        </span>
-                        <a href="${post.link}" target="_blank" class="card-link" rel="noopener noreferrer">Watch Now</a>
-                    </div>
-                </div>
-            `;
-
-            // CLICK HANDLERS for view & click counting
-            const cardLink = card.querySelector('.card-link');
-
-            // Click on "Watch Now" link → count click
-            cardLink.addEventListener('click', (e) => {
-                e.stopPropagation(); // Prevent card click
-                updateCounter(post._id, 'click');
-            });
-
-            // Click anywhere else on the card → count view
-            card.addEventListener('click', (e) => {
-                if (e.target.closest('.card-link')) return; // Ignore if link clicked
-                
-                // 1. Immediate Visual Update on the screen
-                const viewElement = document.getElementById(`views-${post._id}`);
-                if (viewElement) {
-                    const currentViews = parseInt(viewElement.textContent.replace(/,/g, '')) || 0;
-                    viewElement.textContent = (currentViews + 1).toLocaleString();
+                /* ----------------------
+               RENDER POSTS TO GRID (FOR TESTING PURPOSES)
+               ---------------------- */
+            const renderPosts = (posts) => {
+                animeGrid.innerHTML = '';
+                if (!posts || posts.length === 0) {
+                    animeGrid.innerHTML = '<p style="grid-column: 1 / -1; text-align: center;">No posts found.</p>';
+                    return;
                 }
-                
-                // 2. Send the REAL update to the server
-                updateCounter(post._id, 'view');
-                
-                // 3. Open the link
-                window.open(post.link, '_blank');
-            });
+                posts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+                posts.forEach(post => {
+                    const card = document.createElement('div');
+                    card.className = 'anime-card';
+                    card.innerHTML = `
+                        <div class="card-img-wrapper">
+                            <img src="${post.imageUrl}" alt="${post.title}" loading="lazy">
+                        </div>
+                        <div class="card-content">
+                            <h3 class="card-title" title="${post.title}">${post.title}</h3>
+                            <div class="card-footer">
+                                <span class="view-count">
+                                    <i class="material-icons" style="font-size: 1rem;">visibility</i>
+                                    <span id="views-${post._id}">${(post.views || 0).toLocaleString()}</span>
+                                </span>
+                                <a href="${post.link}" target="_blank" class="card-link" rel="noopener noreferrer">Watch Now</a>
+                            </div>
+                        </div>
+                    `;
+                    
+                    const cardLink = card.querySelector('.card-link');
 
-            animeGrid.appendChild(card);
-        });
-    };
+                    // "Watch Now" बटन के लिए क्लिक काउंटर
+                    cardLink.addEventListener('click', (e) => { 
+                        e.stopPropagation();
+                        console.log(`[TEST] Click counter called for ${post._id}`);
+                        updateCounter(post._id, 'click'); 
+                    });
+
+                    // पूरे कार्ड के लिए व्यू काउंटर
+                    card.addEventListener('click', (e) => {
+                        if (e.target.closest('.card-link')) return;
+
+                        console.log(`[TEST] View counter called for ${post._id}`);
+                        
+                        // 1. तुरंत विज़ुअल अपडेट
+                        const viewElement = document.getElementById(`views-${post._id}`);
+                        if (viewElement) {
+                            const currentViews = parseInt(viewElement.textContent.replace(/,/g, '')) || 0;
+                            viewElement.textContent = (currentViews + 1).toLocaleString();
+                        }
+                        
+                        // 2. सर्वर को असली अपडेट भेजें
+                        updateCounter(post._id, 'view');
+                        
+                        // 3. --- हमने इस लाइन को अस्थायी रूप से हटा दिया है ---
+                        // window.open(post.link, '_blank');
+                    });
+
+                    animeGrid.appendChild(card);
+                });
+            };
 
     
 
