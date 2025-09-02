@@ -1,151 +1,401 @@
-/* --- Root Variables and Basic Setup (रंग, फॉन्ट, आदि की बेसिक सेटिंग्स) --- */
+/* ==========================================================================
+   1. Root Variables and Basic Setup (रंग, फॉन्ट, आदि की बेसिक सेटिंग्स)
+   ========================================================================== */
+
 :root {
+    /* Fonts and Transitions */
     --font-family: 'Poppins', sans-serif;
-    --radius-1: 8px; --radius-2: 50px;
-    --transition-1: 0.2s ease;
-    --transition-2: 0.4s ease;
+    --radius-1: 8px;      /* Standard border radius */
+    --radius-2: 50px;     /* Fully rounded radius for bubbles/pills */
+    --transition-1: 0.2s ease; /* Fast transition for hovers */
+    --transition-2: 0.4s ease; /* Slower transition for animations like search */
 }
+
+/* Light Theme Colors */
 html[data-theme="light"] {
-    --bg-primary: #f0f2f5; --bg-secondary: #ffffff;
-    --text-primary: #1c1e21; --text-secondary: #65676b;
-    --border-color: #e0e0e0; --accent-color: #1877f2;
-    --skeleton-glow-color: #f5f5f5;
+    --bg-primary: #f0f2f5;           /* Main background */
+    --bg-secondary: #ffffff;         /* Card, header, footer background */
+    --text-primary: #1c1e21;         /* Main text color */
+    --text-secondary: #65676b;       /* Subdued text color */
+    --border-color: #e0e0e0;         /* Border color for elements */
+    --accent-color: #1877f2;         /* Main brand color (e.g., links, active states) */
+    --skeleton-glow-color: #f5f5f5;  /* Glow color for skeleton loader in light mode */
 }
+
+/* Dark Theme Colors */
 html[data-theme="dark"] {
-    --bg-primary: #18191a; --bg-secondary: #242526;
-    --text-primary: #e4e6eb; --text-secondary: #b0b3b8;
-    --border-color: #3a3b3c; --accent-color: #2374e1;
+    --bg-primary: #18191a;
+    --bg-secondary: #242526;
+    --text-primary: #e4e6eb;
+    --text-secondary: #b0b3b8;
+    --border-color: #3a3b3c;
+    --accent-color: #2374e1;
     --skeleton-glow-color: #4a4e54;
 }
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body {
-    background-color: var(--bg-primary); color: var(--text-primary);
-    font-family: var(--font-family);
-}
-.container { width: 95%; max-width: 1300px; margin: 0 auto; }
-a { color: var(--accent-color); text-decoration: none; }
 
-/* --- HEADER (हेडर की स्टाइलिंग) --- */
-header {
-    background-color: var(--bg-secondary); border-bottom: 1px solid var(--border-color);
-    padding: 0.8rem 0; position: sticky; top: 0; z-index: 100;
-    overflow-x: clip;
+/* Global Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
-.header-container { display: flex; justify-content: space-between; align-items: center; }
-.logo { 
-    font-size: 1.4rem; font-weight: 700; color: var(--accent-color); white-space: nowrap;
+
+/* Body and Global Styles */
+body {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    font-family: var(--font-family);
+    transition: background-color var(--transition-1), color var(--transition-1);
+}
+
+.container {
+    width: 95%;
+    max-width: 1300px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+a {
+    color: var(--accent-color);
+    text-decoration: none;
+}
+
+
+/* ==========================================================================
+   2. Header & Navigation (हेडर की स्टाइलिंग)
+   ========================================================================== */
+
+header {
+    background-color: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-color);
+    padding: 0.8rem 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    overflow-x: clip; /* Prevents logo from showing when it slides out */
+}
+
+.header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--accent-color);
+    white-space: nowrap; /* Prevents the name from breaking into two lines */
     transition: all var(--transition-2);
 }
+
+/* This class is added by JS to slide the logo out */
 .logo.search-active {
     margin-left: -150%;
     opacity: 0;
-    pointer-events: none;
+    pointer-events: none; /* Makes the invisible logo unclickable */
 }
-nav { display: flex; align-items: center; gap: 0.5rem; }
-.search-wrapper { position: relative; display: flex; align-items: center; }
+
+nav {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.search-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
 .search-input {
-    width: 0; padding: 0.6rem 0; border: 1px solid transparent; border-radius: var(--radius-2);
-    font-size: 0.9rem; color: var(--text-primary); background-color: var(--bg-primary);
-    transition: all var(--transition-2); opacity: 0; vertical-align: middle;
+    width: 0; /* Initially hidden */
+    padding: 0.6rem 0;
+    border: 1px solid transparent;
+    border-radius: var(--radius-2);
+    font-size: 0.9rem;
+    color: var(--text-primary);
+    background-color: var(--bg-primary);
+    transition: all var(--transition-2);
+    opacity: 0; /* Initially invisible */
+    vertical-align: middle;
 }
+
+/* This class is added by JS to show the search input */
 .search-input.active {
-    width: 200px; padding: 0.6rem 1rem; opacity: 1; border-color: var(--border-color);
-}
-.search-icon-btn, .theme-toggle-btn {
-    background: none; border: none; cursor: pointer; color: var(--text-secondary);
-    display: flex; align-items: center; padding: 0.5rem;
+    width: 200px;
+    padding: 0.6rem 1rem;
+    opacity: 1;
+    border-color: var(--border-color);
 }
 
-/* --- SEARCH HISTORY (सर्च हिस्ट्री की स्टाइलिंग) --- */
+.search-icon-btn,
+.theme-toggle-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    padding: 0.5rem;
+}
+
+
+/* ==========================================================================
+   3. Search History (सर्च हिस्ट्री ड्रॉपडाउन की स्टाइलिंग)
+   ========================================================================== */
+
 #search-history {
-    position: absolute; top: calc(100% + 5px); right: 0;
-    width: 250px; background-color: var(--bg-secondary);
-    border: 1px solid var(--border-color); border-radius: var(--radius-1);
+    position: absolute;
+    top: calc(100% + 5px); /* Positioned below the search bar */
+    right: 0;
+    width: 250px;
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-1);
     box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-    display: none; z-index: 110; list-style: none;
+    display: none; /* Hidden by default, shown by JS */
+    z-index: 110;
+    list-style: none;
 }
-.history-item {
-    padding: 0.75rem 1rem; display: flex; justify-content: space-between; align-items: center;
-    cursor: pointer; transition: background-color var(--transition-1);
-}
-.history-item:hover { background-color: var(--bg-primary); }
-.history-item .remove-history { color: #f85149; font-size: 1.2rem; cursor: pointer; }
 
-/* --- TAGS SLIDER (टैग्स/कैटेगरी की स्टाइलिंग) --- */
-.filters-container { margin: 2rem 0; }
-.section-title { text-align: center; font-size: 1.8rem; margin-bottom: 1.5rem; }
+.history-item {
+    padding: 0.75rem 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    transition: background-color var(--transition-1);
+}
+
+.history-item:hover {
+    background-color: var(--bg-primary);
+}
+
+.history-item .remove-history {
+    color: #f85149; /* A distinct danger color */
+    font-size: 1.2rem;
+    cursor: pointer;
+}
+
+
+/* ==========================================================================
+   4. Tags Slider (टैग्स/कैटेगरी की स्टाइलिंग)
+   ========================================================================== */
+
+.filters-container {
+    margin: 2rem 0;
+}
+
+.section-title {
+    text-align: center;
+    font-size: 1.8rem;
+    margin-bottom: 1.5rem;
+}
+
 .tags-container {
-    height: 75px;
+    height: 75px; /* Fixed height for two lines of tags */
     overflow-y: hidden;
     position: relative;
 }
+
 .tags-slider {
     display: flex;
-    flex-direction: column; flex-wrap: wrap;
-    align-content: flex-start; overflow-x: auto;
-    -ms-overflow-style: none; scrollbar-width: none;
-    scroll-behavior: smooth; height: 100%; padding-bottom: 1rem;
+    flex-direction: column; /* Lays out tags top-to-bottom */
+    flex-wrap: wrap;         /* Allows tags to wrap into new "columns" */
+    align-content: flex-start; /* Starts filling from the left */
+    overflow-x: auto;          /* Enables horizontal scrolling */
+    -ms-overflow-style: none;  /* Hides scrollbar on IE/Edge */
+    scrollbar-width: none;     /* Hides scrollbar on Firefox */
+    scroll-behavior: smooth;   /* Smooth scrolling effect */
+    height: 100%;
+    padding-bottom: 1rem;      /* Extra space to hide scrollbar remnants */
 }
-.tags-slider::-webkit-scrollbar { display: none; }
+
+.tags-slider::-webkit-scrollbar {
+    display: none; /* Hides scrollbar on Chrome/Safari */
+}
+
 .tag-bubble {
-    padding: 0.5rem 1rem; background: var(--bg-secondary); border: 1px solid var(--border-color);
-    border-radius: var(--radius-2); color: var(--text-secondary); font-weight: 600; cursor: pointer;
-    transition: var(--transition-1); white-space: nowrap; flex-shrink: 0;
-    margin-right: 0.75rem; margin-bottom: 0.75rem;
+    padding: 0.5rem 1rem;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-2);
+    color: var(--text-secondary);
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition-1);
+    white-space: nowrap; /* Prevents tag text from wrapping */
+    flex-shrink: 0;      /* Prevents tags from shrinking */
+    margin-right: 0.75rem;
+    margin-bottom: 0.75rem;
     height: fit-content;
 }
-.tag-bubble:hover { border-color: var(--accent-color); color: var(--text-primary); }
-.tag-bubble.active { background-color: var(--accent-color); color: #fff; border-color: var(--accent-color); }
 
-/* --- ANIME GRID & CARDS (एनीमे कार्ड्स की स्टाइलिंग) --- */
+.tag-bubble:hover {
+    border-color: var(--accent-color);
+    color: var(--text-primary);
+}
+
+.tag-bubble.active {
+    background-color: var(--accent-color);
+    color: #fff;
+    border-color: var(--accent-color);
+}
+
+
+/* ==========================================================================
+   5. Anime Grid & Cards (एनीमे कार्ड्स की स्टाइलिंग)
+   ========================================================================== */
+
 #anime-grid {
-    display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    gap: 1.5rem; min-height: 200px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 1.5rem;
+    min-height: 200px;
 }
+
 .anime-card {
-    background-color: var(--bg-secondary); border-radius: var(--radius-1);
-    overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-    transition: transform var(--transition-1); cursor: pointer;
+    background-color: var(--bg-secondary);
+    border-radius: var(--radius-1);
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    transition: transform var(--transition-1);
+    cursor: pointer;
 }
-.anime-card:hover { transform: translateY(-8px); }
+
+.anime-card:hover {
+    transform: translateY(-8px);
+}
+
 .card-img-wrapper {
-    width: 100%; padding-top: 140%; position: relative;
+    width: 100%;
+    padding-top: 140%; /* Creates a 10:14 aspect ratio for the image container */
+    position: relative;
     background-color: var(--border-color);
 }
+
 .card-img-wrapper img {
-    position: absolute; top: 0; left: 0;
-    width: 100%; height: 100%; object-fit: cover;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Ensures the image covers the area without distortion */
 }
-.card-content { padding: 1rem; }
-.card-title { font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; }
-.card-footer { display: flex; justify-content: space-between; align-items: center; }
-.view-count { display: flex; align-items: center; gap: 0.3rem; color: var(--text-secondary); }
 
-/* --- PAGINATION (पेज नंबर की स्टाइलिंग) --- */
+.card-content {
+    padding: 1rem;
+}
+
+.card-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.view-count {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    color: var(--text-secondary);
+}
+
+
+/* ==========================================================================
+   6. Pagination (पेज नंबर की स्टाइलिंग)
+   ========================================================================== */
+
 .pagination {
-    display: flex; justify-content: center; align-items: center;
-    gap: 0.5rem; margin-top: 2.5rem; flex-wrap: wrap;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 2.5rem;
+    flex-wrap: wrap;
 }
+
 .page-btn {
-    padding: 0.6rem 1rem; background: var(--bg-secondary); border: 1px solid var(--border-color);
-    border-radius: var(--radius-1); color: var(--text-secondary); font-weight: 600; cursor: pointer;
+    padding: 0.6rem 1rem;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-1);
+    color: var(--text-secondary);
+    font-weight: 600;
+    cursor: pointer;
 }
-.page-btn:disabled { cursor: not-allowed; opacity: 0.5; }
-.page-btn.active { background-color: var(--accent-color); color: #fff; }
 
-/* --- AD SPACE & FOOTER (विज्ञापन और फुटर की स्टाइलिंग) --- */
+.page-btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.page-btn.active {
+    background-color: var(--accent-color);
+    color: #fff;
+}
+.pagination-dots {
+    padding: 0.6rem 0;
+    color: var(--text-secondary);
+}
+
+
+/* ==========================================================================
+   7. Ad Space & Footer (विज्ञापन और फुटर की स्टाइलिंग)
+   ========================================================================== */
+
 .ad-space {
-    display: none;
-    justify-content: center; margin: 2rem auto;
+    display: none; /* Hidden by default */
+    justify-content: center;
+    margin: 2rem auto;
 }
-.ad-space:not(:empty) { display: flex; }
-.ad-space > * { max-width: 100%; }
-footer { text-align: center; padding: 1.5rem 0; margin-top: 2rem; background-color: var(--bg-secondary); }
-.footer-links { display: flex; justify-content: center; gap: 1.5rem; margin-bottom: 0.8rem; }
-.footer-links a { color: var(--text-secondary); font-size: 0.8rem; }
-footer p { color: var(--text-secondary); font-size: 0.8rem; }
 
-/* --- SKELETON LOADER (लोडिंग एनीमेशन की स्टाइलिंग) --- */
+/* This rule makes the ad space visible only if it has content inside */
+.ad-space:not(:empty) {
+    display: flex;
+}
+
+/* Ensures the ad itself is responsive and doesn't overflow its container */
+.ad-space > * {
+    max-width: 100%;
+}
+
+footer {
+    text-align: center;
+    padding: 1.5rem 0;
+    margin-top: 2rem;
+    background-color: var(--bg-secondary);
+}
+
+.footer-links {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    margin-bottom: 0.8rem;
+}
+
+.footer-links a {
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+}
+
+footer p {
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+}
+
+
+/* ==========================================================================
+   8. Skeleton Loaders (लोडिंग एनीमेशन की स्टाइलिंग)
+   ========================================================================== */
+
+/* Skeleton for Anime Cards */
 .skeleton-card {
     background-color: var(--bg-secondary);
     border-radius: var(--radius-1);
@@ -156,7 +406,9 @@ footer p { color: var(--text-secondary); font-size: 0.8rem; }
     padding-top: 140%;
     background: var(--border-color);
 }
-.skeleton-content { padding: 1rem; }
+.skeleton-content {
+    padding: 1rem;
+}
 .skeleton-title {
     height: 1.1rem;
     width: 80%;
@@ -170,9 +422,19 @@ footer p { color: var(--text-secondary); font-size: 0.8rem; }
     background: var(--border-color);
     border-radius: 4px;
 }
+
+/* Skeleton for Tags */
+.tags-slider.loading .tag-bubble {
+    background-color: var(--border-color);
+    color: transparent;
+    user-select: none;
+}
+
+/* The glowing animation for all skeletons */
 .skeleton-card .skeleton-image,
 .skeleton-card .skeleton-title,
-.skeleton-card .skeleton-footer {
+.skeleton-card .skeleton-footer,
+.tags-slider.loading .tag-bubble {
     background-image: linear-gradient(90deg, 
         var(--border-color) 30%, 
         var(--skeleton-glow-color) 50%, 
@@ -180,6 +442,7 @@ footer p { color: var(--text-secondary); font-size: 0.8rem; }
     background-size: 200% 100%;
     animation: skeleton-glow 2.5s infinite linear; 
 }
+
 @keyframes skeleton-glow {
     0% { background-position: 150% 0; } 
     100% { background-position: -150% 0; }
