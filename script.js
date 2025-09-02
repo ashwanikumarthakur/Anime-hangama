@@ -2,7 +2,6 @@
 document.addEventListener('DOMContentLoaded', () => {
 
     // --- 1. सभी ज़रूरी HTML एलिमेंट्स को चुनना ---
-    // यह हमारे HTML के हिस्सों को JavaScript में इस्तेमाल करने के लिए चुनता है।
     const animeGrid = document.getElementById('anime-grid');
     const tagsSlider = document.getElementById('tagsSlider');
     const gridTitle = document.getElementById('gridTitle');
@@ -15,7 +14,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const logo = document.getElementById('logo');
 
     // --- 2. कॉन्फ़िगरेशन और स्टेट मैनेजमेंट ---
-    // यह हमारी वेबसाइट की सेटिंग्स और वर्तमान स्थिति को स्टोर करता है।
     const backendBaseUrl = 'https://anime-hangama.onrender.com';
     let isLoading = false;
     let allPostsCache = [];
@@ -25,8 +23,6 @@ document.addEventListener('DOMContentLoaded', () => {
     
     /**
      * सर्वर को सिग्नल भेजकर किसी पोस्ट का व्यू या क्लिक काउंट बढ़ाता है।
-     * @param {string} postId - जिस पोस्ट को अपडेट करना है उसकी ID।
-     * @param {'view'|'click'} type - क्या बढ़ाना है: 'view' या 'click'।
      */
     const updateCounter = (postId, type) => {
         if (!postId || !type) return;
@@ -39,8 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     
     /**
-     * सर्वर से एक खास पेज के पोस्ट्स को लाता है (पेजिनेशन के लिए)।
-     * @param {number} page - जो पेज नंबर लाना है।
+     * सर्वर से एक खास पेज के पोस्ट्स को लाता है।
      */
     const fetchPaginatedPosts = async (page = 1) => {
         if (isLoading) return;
@@ -66,19 +61,20 @@ document.addEventListener('DOMContentLoaded', () => {
      * एक ही बार में सर्वर से सारे पोस्ट्स ले आता है सिर्फ टैग्स और सर्च के लिए।
      */
     const fetchAllPostsForCache = async () => {
+        renderTagSkeletonLoader();
         try {
             const response = await fetch(`${backendBaseUrl}/api/posts?limit=2000`);
             const data = await response.json();
             allPostsCache = data.posts || [];
             loadTags(allPostsCache);
         } catch (error) {
+            tagsSlider.innerHTML = '<p>Could not load tags.</p>';
             console.error("Could not load all posts for cache:", error);
         }
     };
     
     /**
      * सर्वर पर और टैग्स में किसी शब्द को खोजता है।
-     * @param {string} term - जो शब्द खोजना है।
      */
     const fetchSearchResults = async (term) => {
         if (isLoading || !term) return;
@@ -110,22 +106,30 @@ document.addEventListener('DOMContentLoaded', () => {
         for (let i = 0; i < 8; i++) {
             const skeletonCard = document.createElement('div');
             skeletonCard.className = 'skeleton-card';
-            skeletonCard.innerHTML = `
-                <div class="skeleton-image"></div>
-                <div class="skeleton-content">
-                    <div class="skeleton-title"></div>
-                    <div class="skeleton-footer"></div>
-                </div>
-            `;
+            skeletonCard.innerHTML = `<div class="skeleton-image"></div><div class="skeleton-content"><div class="skeleton-title"></div><div class="skeleton-footer"></div></div>`;
             animeGrid.appendChild(skeletonCard);
+        }
+    };
+
+    /**
+     * टैग्स के लिए स्केलेटन लोडर बनाता है।
+     */
+    const renderTagSkeletonLoader = () => {
+        tagsSlider.innerHTML = '';
+        tagsSlider.classList.add('loading');
+        for (let i = 0; i < 6; i++) {
+            const skeletonTag = document.createElement('button');
+            skeletonTag.className = 'tag-bubble';
+            skeletonTag.innerHTML = `&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`;
+            tagsSlider.appendChild(skeletonTag);
         }
     };
     
     /**
      * सभी पोस्ट्स से यूनिक टैग्स निकालकर उनके बटन बनाता है।
-     * @param {Array} posts - सभी पोस्ट्स की लिस्ट।
      */
     const loadTags = (posts) => {
+        tagsSlider.classList.remove('loading');
         const tagSet = new Set();
         posts.forEach(post => {
             const tags = (post.category || '').split(' ').filter(Boolean);
@@ -150,7 +154,6 @@ document.addEventListener('DOMContentLoaded', () => {
     
     /**
      * दिए गए पोस्ट्स को HTML कार्ड्स में बदलकर स्क्रीन पर दिखाता है और क्लिक इवेंट्स लगाता है।
-     * @param {Array} posts - दिखाने वाले पोस्ट्स की लिस्ट।
      */
     const renderPosts = (posts) => {
         animeGrid.innerHTML = '';
@@ -163,9 +166,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const card = document.createElement('div');
             card.className = 'anime-card';
             card.innerHTML = `
-                <div class="card-img-wrapper">
-                    <img src="${post.imageUrl}" alt="${post.title}" loading="lazy">
-                </div>
+                <div class="card-img-wrapper"><img src="${post.imageUrl}" alt="${post.title}" loading="lazy"></div>
                 <div class="card-content">
                     <h3 class="card-title" title="${post.title}">${post.title}</h3>
                     <div class="card-footer">
@@ -194,19 +195,47 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     /**
-     * पेज नंबर के बटन (Prev, 1, 2, 3..., Next) बनाता है।
-     * @param {number} currentPage - वर्तमान पेज नंबर।
-     * @param {number} totalPages - कुल पेजों की संख्या।
+     * पेज नंबर के बटन (Prev, 1, 2, ..., Next) बनाता है।
      */
     const renderPagination = (currentPage, totalPages) => {
         paginationContainer.innerHTML = '';
         if (totalPages <= 1) return;
-        // ... (बाकी का पेजिनेशन लॉजिक)
+
+        const createBtn = (text, page, isActive = false, isDisabled = false) => {
+            const btn = document.createElement('button');
+            btn.className = 'page-btn';
+            if (isActive) btn.classList.add('active');
+            btn.textContent = text;
+            if (page) btn.dataset.page = page;
+            if (isDisabled) btn.disabled = true;
+            return btn;
+        };
+        paginationContainer.appendChild(createBtn('« Prev', currentPage - 1, false, currentPage === 1));
+        
+        let pagesToShow = [1];
+        if (totalPages > 1) pagesToShow.push(totalPages);
+        if (currentPage > 2) pagesToShow.push(currentPage - 1);
+        if (currentPage > 1 && currentPage < totalPages) pagesToShow.push(currentPage);
+        if (currentPage < totalPages - 1) pagesToShow.push(currentPage + 1);
+        
+        pagesToShow = [...new Set(pagesToShow)].sort((a,b) => a-b);
+        
+        let lastPage = 0;
+        pagesToShow.forEach(page => {
+            if (lastPage > 0 && page - lastPage > 1) {
+                const dots = document.createElement('span');
+                dots.className = 'pagination-dots';
+                dots.textContent = '...';
+                paginationContainer.appendChild(dots);
+            }
+            paginationContainer.appendChild(createBtn(page, page, page === currentPage));
+            lastPage = page;
+        });
+        paginationContainer.appendChild(createBtn('Next »', currentPage + 1, false, currentPage === totalPages));
     };
 
     /**
      * सर्च हिस्ट्री को ब्राउज़र की मेमोरी में सेव करता है।
-     * @param {string} term - खोजा गया शब्द।
      */
     const updateSearchHistory = (term) => {
         if (!term || term.length < 2) return;
@@ -221,14 +250,35 @@ document.addEventListener('DOMContentLoaded', () => {
     const renderSearchHistory = () => {
         searchHistoryContainer.innerHTML = '';
         if (searchHistory.length === 0) return;
-        // ... (बाकी का सर्च हिस्ट्री दिखाने का लॉजिक)
+        searchHistory.forEach(term => {
+            const item = document.createElement('li');
+            item.className = 'history-item';
+            item.innerHTML = `<span>${term}</span><i class="material-icons remove-history">close</i>`;
+            item.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (e.target.classList.contains('remove-history')) {
+                    searchHistory = searchHistory.filter(t => t !== term);
+                    localStorage.setItem('searchHistory', JSON.stringify(searchHistory));
+                    renderSearchHistory();
+                } else {
+                    searchInput.value = term;
+                    fetchSearchResults(term);
+                    searchHistoryContainer.style.display = 'none';
+                }
+            });
+            searchHistoryContainer.appendChild(item);
+        });
     };
 
-    // --- 5. इवेंट्स को हैंडल करने वाले Listeners ---
+    // --- 6. इवेंट्स को हैंडल करने वाले Listeners ---
     
     logo.addEventListener('click', (e) => {
         e.preventDefault();
-        location.reload();
+        fetchPaginatedPosts(1);
+        const activeTag = document.querySelector('.tag-bubble.active');
+        if (activeTag) activeTag.classList.remove('active');
+        const allTagButton = document.querySelector('.tag-bubble[data-tag="all"]');
+        if (allTagButton) allTagButton.classList.add('active');
     });
 
     tagsSlider.addEventListener('click', (e) => {
@@ -300,7 +350,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (savedTheme) document.documentElement.setAttribute('data-theme', savedTheme);
     };
 
-    // --- 6. वेबसाइट को शुरू करना ---
+    // --- 7. वेबसाइट को शुरू करना ---
     loadSavedTheme();
     fetchPaginatedPosts(1);
     fetchAllPostsForCache();
