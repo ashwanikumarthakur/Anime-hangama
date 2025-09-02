@@ -4,207 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Anime Hangama</title>
+    
+    <!-- गूगल के फॉन्ट्स और आइकन्स -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <style>
-        :root {
-            --font-family: 'Poppins', sans-serif;
-            --radius-1: 8px; --radius-2: 50px;
-            --transition-1: 0.2s ease;
-            --transition-2: 0.4s ease;
-        }
-        html[data-theme="light"] {
-            --bg-primary: #f0f2f5; --bg-secondary: #ffffff;
-            --text-primary: #1c1e21; --text-secondary: #65676b;
-            --border-color: #e0e0e0; --accent-color: #1877f2;
-            --skeleton-glow-color: #f5f5f5; /* <-- यह नई लाइन जोड़ें (हल्की चमक) */
-        }
-        html[data-theme="dark"] {
-            --bg-primary: #18191a; --bg-secondary: #242526;
-            --text-primary: #e4e6eb; --text-secondary: #b0b3b8;
-            --border-color: #3a3b3c; --accent-color: #2374e1;
-            --skeleton-glow-color: #4a4e54; /* <-- यह नई लाइन जोड़ें (गहरी चमक) */
-        }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            background-color: var(--bg-primary); color: var(--text-primary);
-            font-family: var(--font-family);
-        }
-        .container { width: 95%; max-width: 1300px; margin: 0 auto; }
-        a { color: var(--accent-color); text-decoration: none; }
-
-        header {
-            background-color: var(--bg-secondary); border-bottom: 1px solid var(--border-color);
-            padding: 0.8rem 0; position: sticky; top: 0; z-index: 100;
-            overflow-x: clip;
-        }
-        .header-container { display: flex; justify-content: space-between; align-items: center; }
-        .logo { 
-            font-size: 1.4rem; font-weight: 700; color: var(--accent-color); white-space: nowrap;
-            transition: all var(--transition-2);
-        }
-        .logo.search-active {
-            margin-left: -150%;
-            opacity: 0;
-            pointer-events: none;
-        }
-        nav { display: flex; align-items: center; gap: 0.5rem; }
-        .search-wrapper { position: relative; display: flex; align-items: center; }
-        .search-input {
-            width: 0; padding: 0.6rem 0; border: 1px solid transparent; border-radius: var(--radius-2);
-            font-size: 0.9rem; color: var(--text-primary); background-color: var(--bg-primary);
-            transition: all var(--transition-2); opacity: 0; vertical-align: middle;
-        }
-        .search-input.active {
-            width: 200px; padding: 0.6rem 1rem; opacity: 1; border-color: var(--border-color);
-        }
-        .search-icon-btn, .theme-toggle-btn {
-            background: none; border: none; cursor: pointer; color: var(--text-secondary);
-            display: flex; align-items: center; padding: 0.5rem;
-        }
-        
-        #search-history {
-            position: absolute; top: calc(100% + 5px); right: 0;
-            width: 250px; background-color: var(--bg-secondary);
-            border: 1px solid var(--border-color); border-radius: var(--radius-1);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-            display: none; z-index: 110; list-style: none;
-        }
-        .history-item {
-            padding: 0.75rem 1rem; display: flex; justify-content: space-between; align-items: center;
-            cursor: pointer; transition: background-color var(--transition-1);
-        }
-        .history-item:hover { background-color: var(--bg-primary); }
-        .history-item .remove-history { color: #f85149; font-size: 1.2rem; cursor: pointer; }
-
-        .filters-container { margin: 2rem 0; }
-        .section-title { text-align: center; font-size: 1.8rem; margin-bottom: 1.5rem; }
-        .tags-container {
-            height: 75px;
-            overflow-y: hidden;
-            position: relative;
-        }
-        .tags-slider {
-            display: flex;
-            flex-direction: column; flex-wrap: wrap;
-            align-content: flex-start; overflow-x: auto;
-            -ms-overflow-style: none; scrollbar-width: none;
-            scroll-behavior: smooth; height: 100%; padding-bottom: 1rem;
-        }
-        .tags-slider::-webkit-scrollbar { display: none; }
-        .tag-bubble {
-            padding: 0.5rem 1rem; background: var(--bg-secondary); border: 1px solid var(--border-color);
-            border-radius: var(--radius-2); color: var(--text-secondary); font-weight: 600; cursor: pointer;
-            transition: var(--transition-1); white-space: nowrap; flex-shrink: 0;
-            margin-right: 0.75rem; margin-bottom: 0.75rem;
-            height: fit-content;
-        }
-        .tag-bubble:hover { border-color: var(--accent-color); color: var(--text-primary); }
-        .tag-bubble.active { background-color: var(--accent-color); color: #fff; border-color: var(--accent-color); }
-        
-        #anime-grid {
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-            gap: 1.5rem; min-height: 200px;
-        }
-        .anime-card {
-            background-color: var(--bg-secondary); border-radius: var(--radius-1);
-            overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-            transition: transform var(--transition-1); cursor: pointer;
-        }
-        .anime-card:hover { transform: translateY(-8px); }
-        .card-img-wrapper {
-            width: 100%; padding-top: 140%; position: relative;
-            background-color: var(--border-color);
-        }
-
-          .card-img-wrapper img {
-            position: absolute; top: 0; left: 0;
-            width: 100%; height: 100%; object-fit: cover;
-        }
-        .card-content { padding: 1rem; }
-        .card-title { font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; }
-        .card-footer { display: flex; justify-content: space-between; align-items: center; }
-        .view-count { display: flex; align-items: center; gap: 0.3rem; color: var(--text-secondary); }
-        
-        .pagination {
-            display: flex; justify-content: center; align-items: center;
-            gap: 0.5rem; margin-top: 2.5rem; flex-wrap: wrap;
-        }
-        .page-btn {
-            padding: 0.6rem 1rem; background: var(--bg-secondary); border: 1px solid var(--border-color);
-            border-radius: var(--radius-1); color: var(--text-secondary); font-weight: 600; cursor: pointer;
-        }
-        .page-btn:disabled { cursor: not-allowed; opacity: 0.5; }
-        .page-btn.active { background-color: var(--accent-color); color: #fff; }
-
-        .ad-space {
-            display: none;
-            justify-content: center; margin: 2rem auto;
-        }
-        .ad-space:not(:empty) { display: flex; }
-        .ad-space > * { max-width: 100%; }
-        
-        footer { text-align: center; padding: 1.5rem 0; margin-top: 2rem; background-color: var(--bg-secondary); }
-        .footer-links { display: flex; justify-content: center; gap: 1.5rem; margin-bottom: 0.8rem; }
-        .footer-links a { color: var(--text-secondary); font-size: 0.8rem; }
-        footer p { color: var(--text-secondary); font-size: 0.8rem; }
-
-
-/* --- NEW SKELETON LOADER STYLES (YouTube Style) --- */
-.skeleton-card {
-    background-color: var(--bg-secondary);
-    border-radius: var(--radius-1);
-    overflow: hidden;
-}
-.skeleton-image {
-    width: 100%;
-    padding-top: 140%; /* Same aspect ratio as real cards */
-    background: var(--border-color);
-}
-.skeleton-content { padding: 1rem; }
-.skeleton-title {
-    height: 1.1rem;
-    width: 80%;
-    background: var(--border-color);
-    border-radius: 4px;
-    margin-bottom: 1rem;
-}
-.skeleton-footer {
-    height: 0.9rem;
-    width: 50%;
-    background: var(--border-color);
-    border-radius: 4px;
-}
-
-
-
-
-                /* The glowing animation (Now Theme-Aware) */
-        .skeleton-card .skeleton-image,
-        .skeleton-card .skeleton-title,
-        .skeleton-card .skeleton-footer {
-            /* Now using the new variable for the glow, which changes with the theme */
-            background-image: linear-gradient(90deg, 
-                var(--border-color) 30%, 
-                var(--skeleton-glow-color) 50%, 
-                var(--border-color) 70%);
-            background-size: 200% 100%;
-            /* Slower animation duration */
-            animation: skeleton-glow 2.5s infinite linear; 
-        }
-
-        @keyframes skeleton-glow {
-            /* The glow doesn't travel as far, making it feel less intense */
-            0% { background-position: 150% 0; } 
-            100% { background-position: -150% 0; }
-        }
-
-
-
-        
-    </style>
+    
+    <!-- हमारी स्टाइलशीट (CSS) को यहाँ लिंक किया गया है -->
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
+    <!-- वेबसाइट का हेडर (सबसे ऊपरी हिस्सा) -->
     <header>
         <div class="container header-container">
             <a href="#" class="logo" id="logo">Anime Hangama</a>
@@ -219,20 +29,43 @@
         </div>
     </header>
 
+    <!-- मुख्य कंटेंट एरिया -->
     <main class="container">
-        <div class="ad-space" id="ad-space-top"><p></p></div>
+        
+        <!-- ऊपर वाला विज्ञापन का स्थान -->
+        <div class="ad-space" id="ad-space-top">
+            <p><!-- यहाँ विज्ञापन का कोड आएगा --></p>
+        </div>
+
+        <!-- टैग्स/कैटेगरी फ़िल्टर का सेक्शन -->
         <div class="filters-container">
             <h2 class="section-title">Browse by Tags</h2>
             <div class="tags-container">
-                <div class="tags-slider" id="tagsSlider"></div>
+                <div class="tags-slider" id="tagsSlider">
+                    <!-- टैग्स यहाँ JavaScript से लोड होंगे -->
+                </div>
             </div>
         </div>
+        
+        <!-- एनीमे पोस्ट्स का ग्रिड -->
         <h2 class="section-title" id="gridTitle">Latest Posts</h2>
-        <div id="anime-grid"></div>
-        <div class="pagination" id="pagination"></div>
-        <div class="ad-space" id="ad-space-bottom"><p></p></div>
+        <div id="anime-grid">
+            <!-- एनीमे कार्ड्स यहाँ JavaScript से लोड होंगे -->
+        </div>
+        
+        <!-- पेज नंबर (पेजिनेशन) का सेक्शन -->
+        <div class="pagination" id="pagination">
+            <!-- पेज के बटन यहाँ JavaScript से बनेंगे -->
+        </div>
+      
+        <!-- नीचे वाला विज्ञापन का स्थान -->
+        <div class="ad-space" id="ad-space-bottom">
+            <p><!-- यहाँ विज्ञापन का कोड आएगा --></p>
+        </div>
+
     </main>
 
+    <!-- वेबसाइट का फुटर (सबसे निचला हिस्सा) -->
     <footer>
         <div class="footer-links">
             <a href="disclaimer.html">Disclaimer</a>
@@ -243,434 +76,8 @@
         <p>© 2025 Anime Hangama. All Rights Reserved.</p>
     </footer>
   
-
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-
-    /* ----------------------
-       ELEMENT REFERENCES
-       ---------------------- */
-    const animeGrid = document.getElementById('anime-grid');           // Anime cards grid container
-    const tagsSlider = document.getElementById('tagsSlider');          // Tag filter container
-    const gridTitle = document.getElementById('gridTitle');            // Section title
-    const searchInput = document.getElementById('searchInput');        // Search text input
-    const searchIconBtn = document.getElementById('searchIconBtn');    // Search button (icon)
-    const themeToggle = document.getElementById('themeToggle');        // Theme toggle button
-    const paginationContainer = document.getElementById('pagination'); // Pagination container
-    const searchHistoryContainer = document.getElementById('search-history'); // Search history dropdown
-    const searchWrapper = document.getElementById('searchWrapper');    // Search input + history wrapper
-    const logo = document.getElementById('logo');                      // Logo link (click to reload)
-
-    /* ----------------------
-       LOGO CLICK HANDLER
-       ---------------------- */
-    logo.addEventListener('click', (e) => {
-        e.preventDefault(); // Prevent '#' from being added to URL
-        location.reload();  // Refresh the page
-    });
-
-    /* ----------------------
-       GLOBAL VARIABLES
-       ---------------------- */
-    const backendBaseUrl = 'https://anime-hangama.onrender.com'; // Backend API base URL
-    let isLoading = false;               // Prevent multiple simultaneous loads
-    let allPostsCache = [];               // Stores all posts for search/tag filtering
-    let searchHistory = JSON.parse(localStorage.getItem('searchHistory')) || []; // Local search history
-
-                /**
-             * [FINAL & CORRECTED] Sends a signal to the backend to update 
-             * view or click count for a post, using the full and correct URL.
-             * @param {string} postId - The ID of the post to update.
-             * @param {'view'|'click'} type - The type of interaction.
-             */
-            const updateCounter = (postId, type) => {
-                // Ensure we have the required parameters
-                if (!postId || !type) {
-                    console.error("updateCounter called with invalid parameters.");
-                    return;
-                }
-                
-                // --- THIS IS THE CRITICAL FIX ---
-                // We construct the full, absolute URL to the backend server.
-                const url = `${backendBaseUrl}/api/posts/${type}/${postId}`;
-                // --------------------------------
-
-                // Use sendBeacon for reliability, as it works even if the page is closing
-                if (navigator.sendBeacon) {
-                    // It's a fire-and-forget request, no need to handle response
-                    navigator.sendBeacon(url);
-                } else {
-                    // Fallback for older browsers
-                    fetch(url, { 
-                        method: 'PATCH', 
-                        mode: 'cors', 
-                        keepalive: true 
-                    }).catch(err => {
-                        console.error("Fetch fallback for counter failed:", err);
-                    });
-                }
-            };
-
-    /* ----------------------
-       FETCH PAGINATED POSTS
-       Loads posts for the given page
-       ---------------------- */
-    const fetchPaginatedPosts = async (page = 1) => {
-        if (isLoading) return;
-        isLoading = true;
-
-        renderSkeletonLoader();            // Show loading skeletons
-        paginationContainer.innerHTML = ''; // Clear pagination
-        gridTitle.textContent = 'Latest Posts';
-
-        const url = `${backendBaseUrl}/api/posts?page=${page}&limit=12`;
-
-        try {
-            const response = await fetch(url);
-            if (!response.ok) throw new Error('Network error');
-            const data = await response.json();
-
-            renderPosts(data.posts);                          // Show posts
-            renderPagination(data.currentPage, data.totalPages); // Show pagination
-        } catch (error) {
-            animeGrid.innerHTML = '<p>Failed to load posts. Please try again later.</p>';
-        } finally {
-            isLoading = false;
-        }
-    };
-
-    /* ----------------------
-       FETCH ALL POSTS FOR CACHE
-       Used for tag filtering and client-side search
-       ---------------------- */
-    const fetchAllPostsForCache = async () => {
-        try {
-            const response = await fetch(`${backendBaseUrl}/api/posts?limit=2000`);
-            const data = await response.json();
-            allPostsCache = data.posts || [];
-            loadTags(allPostsCache); // Populate tags from cached posts
-        } catch (error) {
-            console.error("Could not load all posts for cache:", error);
-        }
-    };
-
-    /* ----------------------
-       FETCH SEARCH RESULTS
-       Searches via backend and tag-based filtering
-       ---------------------- */
-    const fetchSearchResults = async (term) => {
-        if (isLoading || !term) return;
-        isLoading = true;
-
-        renderSkeletonLoader();
-        paginationContainer.innerHTML = '';
-        gridTitle.textContent = `Search Results for "${term}"`;
-
-        try {
-            // Backend search API
-            const response = await fetch(`${backendBaseUrl}/api/search?q=${term}`);
-            const apiResults = await response.json();
-
-            // Tag-based client-side search from cached posts
-            const tagResults = allPostsCache.filter(post => (post.category || '').toLowerCase().includes(term.toLowerCase()));
-
-            // Combine results, remove duplicates by _id
-            const combined = [...apiResults, ...tagResults];
-            const uniqueResults = Array.from(new Set(combined.map(p => p._id)))
-                                       .map(id => combined.find(p => p._id === id));
-
-            renderPosts(uniqueResults);
-        } catch (error) {
-            animeGrid.innerHTML = '<p>Search failed. Please try again.</p>';
-        } finally {
-            isLoading = false;
-        }
-    };
-
-    /* ----------------------
-       SKELETON LOADER
-       Displays placeholders while loading posts
-       ---------------------- */
-    const renderSkeletonLoader = () => {
-        animeGrid.innerHTML = '';
-        for (let i = 0; i < 8; i++) {
-            const skeletonCard = document.createElement('div');
-            skeletonCard.className = 'skeleton-card';
-            skeletonCard.innerHTML = `
-                <div class="skeleton-image"></div>
-                <div class="skeleton-content">
-                    <div class="skeleton-title"></div>
-                    <div class="skeleton-footer"></div>
-                </div>
-            `;
-            animeGrid.appendChild(skeletonCard);
-        }
-    };
-
-    /* ----------------------
-       LOAD TAGS FROM POSTS
-       ---------------------- */
-    const loadTags = (posts) => {
-        const tagSet = new Set();
-        posts.forEach(post => {
-            const tags = (post.category || '').split(' ').filter(Boolean);
-            tags.forEach(tag => tagSet.add(tag));
-        });
-
-        tagsSlider.innerHTML = '';
-
-        // "All" tag button
-        const allButton = document.createElement('button');
-        allButton.className = 'tag-bubble active';
-        allButton.dataset.tag = 'all';
-        allButton.textContent = 'All';
-        tagsSlider.appendChild(allButton);
-
-        // Other tags
-        tagSet.forEach(tag => {
-            const button = document.createElement('button');
-            button.className = 'tag-bubble';
-            button.dataset.tag = tag;
-            button.textContent = tag;
-            tagsSlider.appendChild(button);
-        });
-    };
-
-
-                /* ----------------------
-               RENDER POSTS TO GRID (FOR TESTING PURPOSES)
-               ---------------------- */
-            const renderPosts = (posts) => {
-                animeGrid.innerHTML = '';
-                if (!posts || posts.length === 0) {
-                    animeGrid.innerHTML = '<p style="grid-column: 1 / -1; text-align: center;">No posts found.</p>';
-                    return;
-                }
-                posts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-                posts.forEach(post => {
-                    const card = document.createElement('div');
-                    card.className = 'anime-card';
-                    card.innerHTML = `
-                        <div class="card-img-wrapper">
-                            <img src="${post.imageUrl}" alt="${post.title}" loading="lazy">
-                        </div>
-                        <div class="card-content">
-                            <h3 class="card-title" title="${post.title}">${post.title}</h3>
-                            <div class="card-footer">
-                                <span class="view-count">
-                                    <i class="material-icons" style="font-size: 1rem;">visibility</i>
-                                    <span id="views-${post._id}">${(post.views || 0).toLocaleString()}</span>
-                                </span>
-                                <a href="${post.link}" target="_blank" class="card-link" rel="noopener noreferrer">Watch Now</a>
-                            </div>
-                        </div>
-                    `;
-                    
-                    const cardLink = card.querySelector('.card-link');
-
-                    // "Watch Now" बटन के लिए क्लिक काउंटर
-                    cardLink.addEventListener('click', (e) => { 
-                        e.stopPropagation();
-                        console.log(`[TEST] Click counter called for ${post._id}`);
-                        updateCounter(post._id, 'click'); 
-                    });
-
-                    // पूरे कार्ड के लिए व्यू काउंटर
-                    card.addEventListener('click', (e) => {
-                        if (e.target.closest('.card-link')) return;
-
-                        console.log(`[TEST] View counter called for ${post._id}`);
-                        
-                        // 1. तुरंत विज़ुअल अपडेट
-                        const viewElement = document.getElementById(`views-${post._id}`);
-                        if (viewElement) {
-                            const currentViews = parseInt(viewElement.textContent.replace(/,/g, '')) || 0;
-                            viewElement.textContent = (currentViews + 1).toLocaleString();
-                        }
-                        
-                        // 2. सर्वर को असली अपडेट भेजें
-                        updateCounter(post._id, 'view');
-                        
-                        // 3. --- हमने इस लाइन को अस्थायी रूप से हटा दिया है ---
-                        // window.open(post.link, '_blank');
-                    });
-
-                    animeGrid.appendChild(card);
-                });
-            };
-
-    
-
-    /* ----------------------
-       PAGINATION RENDERING
-       ---------------------- */
-    const renderPagination = (currentPage, totalPages) => {
-        paginationContainer.innerHTML = '';
-        if (totalPages <= 1) return;
-
-        // Prev button
-        const prevBtn = document.createElement('button');
-        prevBtn.className = 'page-btn';
-        prevBtn.textContent = '« Prev';
-        prevBtn.dataset.page = currentPage - 1;
-        if (currentPage === 1) prevBtn.disabled = true;
-        paginationContainer.appendChild(prevBtn);
-
-        // Current page number
-        const pageNumBtn = document.createElement('button');
-        pageNumBtn.className = 'page-btn active';
-        pageNumBtn.textContent = currentPage;
-        paginationContainer.appendChild(pageNumBtn);
-
-        // Next button
-        const nextBtn = document.createElement('button');
-        nextBtn.className = 'page-btn';
-        nextBtn.textContent = 'Next »';
-        nextBtn.dataset.page = currentPage + 1;
-        if (currentPage === totalPages) nextBtn.disabled = true;
-        paginationContainer.appendChild(nextBtn);
-    };
-
-    /* ----------------------
-       SEARCH HISTORY MANAGEMENT
-       ---------------------- */
-    const updateSearchHistory = (term) => {
-        if (!term || term.length < 2) return;
-        searchHistory = [term, ...searchHistory.filter(t => t.toLowerCase() !== term.toLowerCase())].slice(0, 5);
-        localStorage.setItem('searchHistory', JSON.stringify(searchHistory));
-        renderSearchHistory();
-    };
-
-    const renderSearchHistory = () => {
-        searchHistoryContainer.innerHTML = '';
-        if (searchHistory.length === 0) return;
-
-        searchHistory.forEach(term => {
-            const item = document.createElement('li');
-            item.className = 'history-item';
-            item.innerHTML = `<span>${term}</span><i class="material-icons remove-history">close</i>`;
-
-            item.addEventListener('click', (e) => {
-                e.stopPropagation();
-                if (e.target.classList.contains('remove-history')) {
-                    searchHistory = searchHistory.filter(t => t !== term);
-                    localStorage.setItem('searchHistory', JSON.stringify(searchHistory));
-                    renderSearchHistory();
-                } else {
-                    searchInput.value = term;
-                    fetchSearchResults(term);
-                    searchHistoryContainer.style.display = 'none';
-                }
-            });
-
-            searchHistoryContainer.appendChild(item);
-        });
-    };
-
-    /* ----------------------
-       TAG FILTER CLICK HANDLER
-       ---------------------- */
-    tagsSlider.addEventListener('click', (e) => {
-        const button = e.target.closest('.tag-bubble');
-        if (button && !isLoading) {
-            const tag = button.dataset.tag;
-            if (tag === 'all') {
-                fetchPaginatedPosts(1);
-            } else {
-                gridTitle.textContent = `Tag: ${tag}`;
-                const filteredPosts = allPostsCache.filter(post => (post.category || '').split(' ').includes(tag));
-                renderPosts(filteredPosts);
-                paginationContainer.innerHTML = '';
-            }
-            document.querySelectorAll('.tag-bubble').forEach(b => b.classList.remove('active'));
-            button.classList.add('active');
-        }
-    });
-
-    /* ----------------------
-       SEARCH ICON CLICK HANDLER
-       ---------------------- */
-    searchIconBtn.addEventListener('click', () => {
-        const isActive = searchInput.classList.contains('active');
-        searchInput.classList.toggle('active');
-        logo.classList.toggle('search-active');
-
-        if (!isActive) {
-            searchInput.focus();
-        } else if (searchInput.value) {
-            fetchSearchResults(searchInput.value.trim());
-            updateSearchHistory(searchInput.value.trim());
-        }
-    });
-
-    /* ----------------------
-       SEARCH INPUT ENTER KEY HANDLER
-       ---------------------- */
-    searchInput.addEventListener('keyup', (e) => {
-        if (e.key === 'Enter') {
-            const term = searchInput.value.trim();
-            fetchSearchResults(term);
-            updateSearchHistory(term);
-            searchInput.blur();
-            searchHistoryContainer.style.display = 'none';
-        }
-    });
-
-    /* ----------------------
-       SEARCH INPUT FOCUS HANDLER
-       ---------------------- */
-    searchInput.addEventListener('focus', () => {
-        renderSearchHistory();
-        if (searchHistory.length > 0) searchHistoryContainer.style.display = 'block';
-    });
-
-    /* ----------------------
-       HIDE SEARCH HISTORY ON OUTSIDE CLICK
-       ---------------------- */
-    document.addEventListener('click', (e) => {
-        if (!searchWrapper.contains(e.target)) {
-            searchHistoryContainer.style.display = 'none';
-        }
-    });
-
-    /* ----------------------
-       PAGINATION BUTTON CLICK HANDLER
-       ---------------------- */
-    paginationContainer.addEventListener('click', (e) => {
-        const button = e.target.closest('.page-btn');
-        if (button && button.dataset.page && !button.disabled) {
-            fetchPaginatedPosts(parseInt(button.dataset.page));
-        }
-    });
-
-    /* ----------------------
-       THEME TOGGLE HANDLER
-       ---------------------- */
-    const handleThemeToggle = () => {
-        const newTheme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-        document.documentElement.setAttribute('data-theme', newTheme);
-        localStorage.setItem('theme', newTheme);
-    };
-    themeToggle.addEventListener('click', handleThemeToggle);
-
-    /* ----------------------
-       LOAD SAVED THEME
-       ---------------------- */
-    const loadSavedTheme = () => {
-        const savedTheme = localStorage.getItem('theme');
-        if (savedTheme) document.documentElement.setAttribute('data-theme', savedTheme);
-    };
-
-    /* ----------------------
-       INITIAL LOAD
-       ---------------------- */
-    loadSavedTheme();       // Apply saved theme
-    fetchPaginatedPosts(1); // Load first page
-    fetchAllPostsForCache();// Preload all posts for tags/search
-});
-</script>
-    
-    
+    <!-- हमारी जावास्क्रिप्ट (JS) फ़ाइल को यहाँ लिंक किया गया है -->
+    <script src="script.js"></script>
     
 </body>
 </html>
