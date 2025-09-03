@@ -4,68 +4,37 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Anime Hangama</title>
-    
-    <!-- गूगल के फॉन्ट्स और आइकन्स -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    
-    <!-- हमारी स्टाइलशीट (CSS) को यहाँ लिंक किया गया है -->
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-    <!-- वेबसाइट का हेडर (सबसे ऊपरी हिस्सा) -->
     <header>
         <div class="container header-container">
             <a href="#" class="logo" id="logo">Anime Hangama</a>
             <nav>
                 <div class="search-wrapper" id="searchWrapper">
-                    <input type="text" id="searchInput" class="search-input" placeholder="Search...">
-                    <ul id="search-history"></ul>
+                    <input type="text" id="searchInput" class="search-input" placeholder="Search..." aria-label="Search">
+                    <ul id="search-history" role="listbox" aria-label="Search history"></ul>
                 </div>
-                <button class="search-icon-btn" id="searchIconBtn"><i class="material-icons">search</i></button>
-                <button class="theme-toggle-btn" id="themeToggle"><i class="material-icons">brightness_6</i></button>
+                <button class="search-icon-btn" id="searchIconBtn" aria-label="Toggle search"><i class="material-icons">search</i></button>
+                <button class="theme-toggle-btn" id="themeToggle" aria-label="Toggle theme"><i class="material-icons">brightness_6</i></button>
             </nav>
         </div>
     </header>
-
-    <!-- मुख्य कंटेंट एरिया -->
     <main class="container">
-        
-        <!-- ऊपर वाला विज्ञापन का स्थान -->
-        <div class="ad-space" id="ad-space-top">
-            <p><!-- यहाँ विज्ञापन का कोड आएगा --></p>
-        </div>
-
-        <!-- टैग्स/कैटेगरी फ़िल्टर का सेक्शन -->
+        <div class="ad-space" id="ad-space-top"><p></p></div>
         <div class="filters-container">
             <h2 class="section-title">Browse by Tags</h2>
             <div class="tags-container">
-                <div class="tags-slider" id="tagsSlider">
-                    <!-- टैग्स यहाँ JavaScript से लोड होंगे -->
-                </div>
+                <div class="tags-slider" id="tagsSlider"></div>
             </div>
         </div>
-        
-        <!-- एनीमे पोस्ट्स का ग्रिड -->
         <h2 class="section-title" id="gridTitle">Latest Posts</h2>
-        <div id="anime-grid">
-            <!-- एनीमे कार्ड्स यहाँ JavaScript से लोड होंगे -->
-        </div>
-        
-        <!-- पेज नंबर (पेजिनेशन) का सेक्शन -->
-        <div class="pagination" id="pagination">
-            <!-- पेज के बटन यहाँ JavaScript से बनेंगे -->
-        </div>
-      
-        <!-- नीचे वाला विज्ञापन का स्थान -->
-        <div class="ad-space" id="ad-space-bottom">
-            <p><!-- यहाँ विज्ञापन का कोड आएगा --></p>
-        </div>
-
+        <div id="anime-grid"></div>
+        <div class="pagination" id="pagination"></div>
+        <div class="ad-space" id="ad-space-bottom"><p></p></div>
     </main>
-
-    <!-- वेबसाइट का फुटर (सबसे निचला हिस्सा) -->
     <footer>
         <div class="footer-links">
             <a href="disclaimer.html">Disclaimer</a>
@@ -75,9 +44,6 @@
         </div>
         <p>© 2025 Anime Hangama. All Rights Reserved.</p>
     </footer>
-  
-    <!-- हमारी जावास्क्रिप्ट (JS) फ़ाइल को यहाँ लिंक किया गया है -->
     <script src="script.js"></script>
-    
 </body>
 </html>
