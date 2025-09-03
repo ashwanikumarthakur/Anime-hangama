@@ -1,20 +1,15 @@
-/* Updated script.js — पूरा, सही किया हुआ और हिंदी कमेंट्स के साथ
-   मुख्य सुधार:
-   - views/clicks के लिए navigator.sendBeacon (POST) का सपोर्ट + POST fetch keepalive fallback + PATCH fallback
-   - XSS-safe rendering (textContent) और lazy loading images
-   - search history, tags, pagination और theme toggle बनाए रखा
-   - हर जगह error handling और console logs जोड़े गए
-*/
+// script.js
+// Frontend client for Anime Hangama
+// Hindi comments, robust fetching and counter handling
 
-/* CONFIG */
-const backendBaseUrl = 'https://anime-hangama.onrender.com'; // backend का base URL (deploy के हिसाब से बदलें)
+/* CONFIG - agar backend alag domain par ho to yahan badal do */
+const backendBaseUrl = (window && window.BACKEND_BASE_URL) ? window.BACKEND_BASE_URL : 'https://anime-hangama.onrender.com';
 const POSTS_PER_PAGE = 12;
 
-/* UTILS */
-const $ = (sel) => document.querySelector(sel);
-const $$ = (sel) => Array.from(document.querySelectorAll(sel));
+/* HELPERS */
+const $ = sel => document.querySelector(sel);
+const $$ = sel => Array.from(document.querySelectorAll(sel));
 
-/* DOM ELEMENTS */
 const animeGrid = $('#anime-grid');
 const tagsSlider = $('#tagsSlider');
 const gridTitle = $('#gridTitle');
@@ -26,49 +21,43 @@ const searchHistoryContainer = $('#search-history');
 const searchWrapper = $('#searchWrapper');
 const logo = $('#logo');
 
-/* STATE */
 let isLoading = false;
-let allPostsCache = []; // cached posts for tag rendering & client-side features
+let allPostsCache = [];
 let currentPage = 1;
 let totalPages = 1;
 let searchHistory = JSON.parse(localStorage.getItem('searchHistory') || '[]');
 
-/* ---------------------------
-   Reliable counter function
-   ---------------------------
-   Strategy:
-   1) Try navigator.sendBeacon (POST) first — best for navigation scenarios.
-   2) If not available or returns false, try fetch POST with keepalive.
-   3) If POST returns 404/405 (server only accepts PATCH), try PATCH as a last resort.
-   Note: sendBeacon returning true means browser queued it, not guaranteed server write,
-   but with POST endpoints present on backend chance of success is high.
+/* Reliable counter:
+   1) Try navigator.sendBeacon (POST)
+   2) Fallback: fetch POST with keepalive
+   3) If POST not accepted (404/405) try PATCH
 */
 async function updateCounter(postId, type) {
   if (!postId || !type) return;
   const url = `${backendBaseUrl}/api/posts/${type}/${postId}`;
 
-  // 1) sendBeacon (quick, no blocking)
+  // sendBeacon
   try {
-    if ('sendBeacon' in navigator) {
+    if (navigator && typeof navigator.sendBeacon === 'function') {
       try {
         const payload = JSON.stringify({ _id: postId, type });
         const blob = new Blob([payload], { type: 'application/json' });
-        const ok = navigator.sendBeacon(url, blob);
-        if (ok) {
-          console.debug('sendBeacon queued ->', url);
+        const beaconOk = navigator.sendBeacon(url, blob);
+        if (beaconOk) {
+          console.debug('sendBeacon queued for', url);
           return;
         } else {
-          console.debug('sendBeacon returned false -> fallback to fetch', url);
+          console.debug('sendBeacon returned false for', url);
         }
-      } catch (err) {
-        console.warn('sendBeacon threw', err);
+      } catch (e) {
+        console.warn('sendBeacon error', e);
       }
     }
   } catch (e) {
-    console.warn('navigator.sendBeacon not usable', e);
+    console.warn('sendBeacon not usable', e);
   }
 
-  // 2) POST fetch with keepalive
+  // fetch POST with keepalive
   try {
     const res = await fetch(url, {
       method: 'POST',
@@ -78,12 +67,12 @@ async function updateCounter(postId, type) {
       body: JSON.stringify({ _id: postId, type })
     });
     if (res.ok) {
-      console.debug('POST ok ->', url);
+      console.debug('POST ok for', url);
       return;
     }
-    // If server doesn't accept POST (405) or route missing (404) try PATCH fallback
-    if (res.status === 405 || res.status === 404) {
-      console.warn('POST not accepted, trying PATCH fallback', res.status, url);
+    if (res.status === 404 || res.status === 405) {
+      // try PATCH fallback
+      console.warn('POST not accepted, trying PATCH for', url, res.status);
       const res2 = await fetch(url, {
         method: 'PATCH',
         mode: 'cors',
@@ -92,29 +81,25 @@ async function updateCounter(postId, type) {
         body: JSON.stringify({ _id: postId, type })
       });
       if (res2.ok) {
-        console.debug('PATCH ok ->', url);
+        console.debug('PATCH ok for', url);
         return;
       } else {
-        console.warn('PATCH also failed', res2.status, res2.statusText);
+        console.warn('PATCH also failed for', url, res2.status);
       }
     } else {
-      console.warn('POST returned non-ok status', res.status, res.statusText);
+      console.warn('POST returned non-ok', res.status, res.statusText);
     }
   } catch (err) {
-    console.warn('updateCounter fetch error', err);
+    console.warn('fetch POST error for updateCounter', err);
   }
 }
 
-/* ---------------------------
-   Card creation & rendering
-   --------------------------- */
+/* Card creation */
 function createPostCard(post) {
-  // safe rendering: use textContent, do not insert untrusted HTML
   const card = document.createElement('article');
   card.className = 'anime-card';
   card.setAttribute('role', 'article');
 
-  // image wrapper
   const imgWrapper = document.createElement('div');
   imgWrapper.className = 'card-img-wrapper';
   const img = document.createElement('img');
@@ -124,32 +109,29 @@ function createPostCard(post) {
   imgWrapper.appendChild(img);
   card.appendChild(imgWrapper);
 
-  // content
   const content = document.createElement('div');
   content.className = 'card-content';
   const h3 = document.createElement('h3');
   h3.className = 'card-title';
   h3.textContent = post.title || 'Untitled';
-  h3.title = post.title || '';
   content.appendChild(h3);
 
-  // footer with views + link
   const footer = document.createElement('div');
   footer.className = 'card-footer';
 
-  const viewSpan = document.createElement('button'); // button for accessibility (not submitting)
-  viewSpan.className = 'view-count';
-  viewSpan.type = 'button';
-  viewSpan.setAttribute('aria-label', `Views: ${post.views || 0}`);
+  const viewBtn = document.createElement('button');
+  viewBtn.className = 'view-count';
+  viewBtn.type = 'button';
+  viewBtn.setAttribute('aria-label', `Views: ${post.views || 0}`);
   const icon = document.createElement('i');
   icon.className = 'material-icons';
-  icon.style.fontSize = '1rem';
   icon.textContent = 'visibility';
+  icon.style.fontSize = '1rem';
   const viewsNum = document.createElement('span');
   viewsNum.id = `views-${post._id}`;
   viewsNum.textContent = (post.views || 0).toLocaleString();
-  viewSpan.appendChild(icon);
-  viewSpan.appendChild(viewsNum);
+  viewBtn.appendChild(icon);
+  viewBtn.appendChild(viewsNum);
 
   const link = document.createElement('a');
   link.className = 'card-link';
@@ -159,7 +141,7 @@ function createPostCard(post) {
   link.textContent = 'Watch Now';
   link.setAttribute('aria-label', `Open ${post.title}`);
 
-  footer.appendChild(viewSpan);
+  footer.appendChild(viewBtn);
   footer.appendChild(link);
   content.appendChild(footer);
   card.appendChild(content);
@@ -167,8 +149,12 @@ function createPostCard(post) {
   return { card, link, viewsNum, id: post._id };
 }
 
+/* Render posts (safe) */
 function renderPosts(posts) {
-  if (!animeGrid) return;
+  if (!animeGrid) {
+    console.error('Missing #anime-grid element');
+    return;
+  }
   animeGrid.innerHTML = '';
   if (!posts || posts.length === 0) {
     const p = document.createElement('p');
@@ -179,42 +165,34 @@ function renderPosts(posts) {
     return;
   }
 
-  // sort by createdAt desc
-  posts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  // sort by createdAt desc if present
+  posts.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
 
   posts.forEach(post => {
     const { card, link, viewsNum, id } = createPostCard(post);
 
-    // Link click: increment click counter (background)
+    // link click -> click counter
     if (link) {
       link.addEventListener('click', (e) => {
-        e.stopPropagation(); // prevent card click
-        // increment click counter in background
+        e.stopPropagation();
         updateCounter(id, 'click');
-        // default behavior opens link
       });
     }
 
-    // Card click: open link and increment view
+    // card click -> open and view counter
     card.addEventListener('click', (e) => {
-      // if clicked on link, ignore (handled above)
       if (e.target.closest('.card-link')) return;
-
-      // optimistic UI update
+      // optimistic UI
       if (viewsNum) {
-        const cur = parseInt(viewsNum.textContent.replace(/,/g, '')) || 0;
+        const cur = parseInt(viewsNum.textContent.replace(/,/g, ''), 10) || 0;
         viewsNum.textContent = (cur + 1).toLocaleString();
       }
-
-      // open link in new tab/window
+      // open link in new tab (user gesture)
       try {
         window.open(post.link, '_blank', 'noopener,noreferrer');
       } catch (err) {
-        // fallback: same tab
         window.location.href = post.link;
       }
-
-      // background increment view
       updateCounter(id, 'view');
     });
 
@@ -222,94 +200,92 @@ function renderPosts(posts) {
   });
 }
 
-/* ---------------------------
-   Pagination rendering
-   --------------------------- */
+/* Pagination renderer */
 function renderPagination(current, total) {
   if (!paginationContainer) return;
   paginationContainer.innerHTML = '';
   totalPages = total || 1;
   currentPage = current || 1;
 
-  const createBtn = (txt, page, disabled = false) => {
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'page-btn';
-    btn.textContent = txt;
-    if (disabled) btn.disabled = true;
-    btn.addEventListener('click', () => fetchPaginatedPosts(page));
-    return btn;
+  const makeBtn = (txt, page, disabled) => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'page-btn';
+    b.textContent = txt;
+    if (disabled) b.disabled = true;
+    b.addEventListener('click', () => fetchPaginatedPosts(page));
+    return b;
   };
 
-  // prev
-  paginationContainer.appendChild(createBtn('Prev', Math.max(1, currentPage - 1), currentPage === 1));
+  paginationContainer.appendChild(makeBtn('Prev', Math.max(1, currentPage - 1), currentPage === 1));
 
-  // show a few page numbers
   const start = Math.max(1, currentPage - 2);
   const end = Math.min(totalPages, currentPage + 2);
   for (let p = start; p <= end; p++) {
-    const btn = createBtn(String(p), p, false);
+    const btn = makeBtn(String(p), p, false);
     if (p === currentPage) btn.classList.add('active');
     paginationContainer.appendChild(btn);
   }
 
-  // next
-  paginationContainer.appendChild(createBtn('Next', Math.min(totalPages, currentPage + 1), currentPage === totalPages));
+  paginationContainer.appendChild(makeBtn('Next', Math.min(totalPages, currentPage + 1), currentPage === totalPages));
 }
 
-/* ---------------------------
-   Fetch posts (paginated)
-   --------------------------- */
+/* Fetch paginated posts */
 async function fetchPaginatedPosts(page = 1) {
   if (isLoading) return;
   isLoading = true;
   currentPage = page;
   if (animeGrid) animeGrid.innerHTML = '<p>Loading...</p>';
+
   try {
     const url = `${backendBaseUrl}/api/posts?page=${page}&limit=${POSTS_PER_PAGE}`;
     const res = await fetch(url);
-    if (!res.ok) throw new Error('Network error ' + res.status);
+    if (!res.ok) throw new Error('Network response not ok ' + res.status);
     const data = await res.json();
-    renderPosts(data.posts || []);
-    renderPagination(data.currentPage || 1, data.totalPages || 1);
+    // backend may return { posts, totalPages, currentPage } OR array
+    let posts = [];
+    if (Array.isArray(data)) posts = data;
+    else if (data.posts) posts = data.posts;
+    else if (data.length) posts = data;
+
+    renderPosts(posts);
+    renderPagination(data.currentPage || page, data.totalPages || 1);
   } catch (err) {
-    console.error('fetchPaginatedPosts err', err);
+    console.error('fetchPaginatedPosts error', err);
     if (animeGrid) animeGrid.innerHTML = '<p>Failed to load posts.</p>';
   } finally {
     isLoading = false;
   }
 }
 
-/* ---------------------------
-   Fetch all posts (cache for tags & client search)
-   --------------------------- */
+/* Fetch all posts for cache (tags/search) */
 async function fetchAllPostsForCache() {
   try {
     const res = await fetch(`${backendBaseUrl}/api/posts?limit=2000`);
     if (!res.ok) throw new Error('Fetch all posts failed ' + res.status);
     const data = await res.json();
-    allPostsCache = data.posts || [];
+    let posts = [];
+    if (Array.isArray(data)) posts = data;
+    else if (data.posts) posts = data.posts;
+    else if (data.length) posts = data;
+    allPostsCache = posts;
     loadTagsFromCache(allPostsCache);
   } catch (err) {
     console.error('fetchAllPostsForCache err', err);
   }
 }
 
-/* ---------------------------
-   Tags rendering (from cache)
-   --------------------------- */
+/* Tags from cache */
 function loadTagsFromCache(posts) {
   if (!tagsSlider) return;
   tagsSlider.innerHTML = '';
-  const tagCount = {};
-  posts.forEach(p => {
-    (p.tags || []).forEach(t => {
-      const tag = (t || '').trim();
-      if (!tag) return;
-      tagCount[tag] = (tagCount[tag] || 0) + 1;
-    });
-  });
-  const tags = Object.keys(tagCount).sort((a, b) => tagCount[b] - tagCount[a]);
+  const counts = {};
+  (posts || []).forEach(p => (p.tags || []).forEach(t => {
+    const tag = (t || '').trim();
+    if (!tag) return;
+    counts[tag] = (counts[tag] || 0) + 1;
+  }));
+  const tags = Object.keys(counts).sort((a, b) => counts[b] - counts[a]);
   if (tags.length === 0) {
     tagsSlider.innerHTML = '<p>No tags</p>';
     return;
@@ -320,23 +296,20 @@ function loadTagsFromCache(posts) {
     btn.className = 'tag-btn';
     btn.textContent = tag;
     btn.addEventListener('click', () => {
-      // filter posts by tag (client-side)
       const filtered = allPostsCache.filter(p => (p.tags || []).map(x => x.trim()).includes(tag));
       gridTitle.textContent = `Tag: ${tag}`;
       renderPosts(filtered);
-      renderPagination(1, 1); // no pagination for tag view (client-side)
+      renderPagination(1, 1);
     });
     tagsSlider.appendChild(btn);
   });
 }
 
-/* ---------------------------
-   Search handling
-   --------------------------- */
-let searchDebounceTimer = null;
+/* Search handling */
+let searchDebounce = null;
 function addToSearchHistory(q) {
   if (!q) return;
-  searchHistory = searchHistory.filter(x => x !== q);
+  searchHistory = (searchHistory || []).filter(x => x !== q);
   searchHistory.unshift(q);
   if (searchHistory.length > 10) searchHistory.pop();
   localStorage.setItem('searchHistory', JSON.stringify(searchHistory));
@@ -346,13 +319,12 @@ function addToSearchHistory(q) {
 function renderSearchHistory() {
   if (!searchHistoryContainer) return;
   searchHistoryContainer.innerHTML = '';
-  if (!searchHistory || searchHistory.length === 0) return;
-  searchHistory.forEach(item => {
+  (searchHistory || []).forEach(item => {
     const li = document.createElement('li');
     li.role = 'option';
     li.textContent = item;
     li.addEventListener('click', () => {
-      searchInput.value = item;
+      if (searchInput) searchInput.value = item;
       performSearch(item);
     });
     searchHistoryContainer.appendChild(li);
@@ -364,109 +336,65 @@ async function performSearch(q) {
   gridTitle.textContent = `Search: ${q}`;
   addToSearchHistory(q);
   try {
-    const url = `${backendBaseUrl}/api/search?q=${encodeURIComponent(q)}`;
-    const res = await fetch(url);
+    const res = await fetch(`${backendBaseUrl}/api/search?q=${encodeURIComponent(q)}`);
     if (!res.ok) throw new Error('Search failed ' + res.status);
     const posts = await res.json();
-    renderPosts(posts);
-    renderPagination(1, 1); // search results: single page view
+    renderPosts(Array.isArray(posts) ? posts : (posts.posts || posts));
+    renderPagination(1, 1);
   } catch (err) {
     console.error('performSearch err', err);
-    animeGrid.innerHTML = '<p>Search failed.</p>';
+    if (animeGrid) animeGrid.innerHTML = '<p>Search failed.</p>';
   }
 }
 
-/* ---------------------------
-   Theme toggle (dark/light)
-   --------------------------- */
-function setTheme(theme) {
-  document.documentElement.setAttribute('data-theme', theme);
-  localStorage.setItem('theme', theme);
+/* Theme toggle */
+function setTheme(t) {
+  document.documentElement.setAttribute('data-theme', t);
+  localStorage.setItem('theme', t);
 }
 function toggleTheme() {
   const cur = document.documentElement.getAttribute('data-theme') || 'light';
-  const next = cur === 'dark' ? 'light' : 'dark';
-  setTheme(next);
+  setTheme(cur === 'dark' ? 'light' : 'dark');
 }
 
-/* ---------------------------
-   UI initialisation & events
-   --------------------------- */
+/* Wire UI */
 function wireUpUI() {
-  // Logo click -> go to first page
-  if (logo) {
-    logo.addEventListener('click', (e) => {
-      e.preventDefault();
-      gridTitle.textContent = 'Latest Posts';
-      fetchPaginatedPosts(1);
-    });
-  }
+  if (logo) logo.addEventListener('click', (e) => { e.preventDefault(); gridTitle.textContent = 'Latest Posts'; fetchPaginatedPosts(1); });
 
-  // Search input debounce
   if (searchInput) {
     searchInput.addEventListener('input', (e) => {
       const q = e.target.value.trim();
-      if (searchDebounceTimer) clearTimeout(searchDebounceTimer);
-      searchDebounceTimer = setTimeout(() => {
-        if (q.length === 0) {
-          // if empty, go back to paginated listing
-          gridTitle.textContent = 'Latest Posts';
-          fetchPaginatedPosts(1);
-        } else {
-          performSearch(q);
-        }
+      if (searchDebounce) clearTimeout(searchDebounce);
+      searchDebounce = setTimeout(() => {
+        if (!q) { gridTitle.textContent = 'Latest Posts'; fetchPaginatedPosts(1); }
+        else performSearch(q);
       }, 350);
     });
+    searchInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') performSearch(searchInput.value.trim()); });
   }
 
-  // Search icon (toggle visibility on small screens)
   if (searchIconBtn && searchWrapper) {
     searchIconBtn.addEventListener('click', () => {
       searchWrapper.classList.toggle('visible');
-      if (searchWrapper.classList.contains('visible')) {
-        searchInput && searchInput.focus();
-      }
+      if (searchWrapper.classList.contains('visible') && searchInput) searchInput.focus();
     });
   }
 
-  // Theme toggle
-  if (themeToggle) {
-    themeToggle.addEventListener('click', toggleTheme);
-  }
+  if (themeToggle) themeToggle.addEventListener('click', toggleTheme);
 
-  // click outside search to close history
   document.addEventListener('click', (e) => {
     if (!searchWrapper) return;
-    if (!searchWrapper.contains(e.target) && searchHistoryContainer) {
-      searchHistoryContainer.innerHTML = '';
-    }
+    if (!searchWrapper.contains(e.target) && searchHistoryContainer) searchHistoryContainer.innerHTML = '';
   });
 
-  // initial search history render
   renderSearchHistory();
-
-  // keyboard: Enter in search triggers immediate search
-  if (searchInput) {
-    searchInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
-        const q = searchInput.value.trim();
-        if (q) performSearch(q);
-      }
-    });
-  }
 }
 
-/* ---------------------------
-   Bootstrapping
-   --------------------------- */
-(function boot() {
-  // apply saved theme
-  const savedTheme = localStorage.getItem('theme') || document.documentElement.getAttribute('data-theme');
+/* Boot */
+(function () {
+  const savedTheme = localStorage.getItem('theme');
   if (savedTheme) setTheme(savedTheme);
-
   wireUpUI();
-
-  // initial load
   fetchPaginatedPosts(1);
   fetchAllPostsForCache();
 })();
