@@ -10,7 +10,7 @@
 </head>
 <body>
     <!-- ====================================================== -->
-    <!-- HEADER (कोई बदलाव नहीं)                               -->
+    <!-- HEADER (बिल्कुल वैसा ही जैसा आपने दिया था)              -->
     <!-- ====================================================== -->
     <header>
         <div class="container header-container">
@@ -18,6 +18,8 @@
             <nav>
                 <div class="search-wrapper" id="searchWrapper">
                     <input type="text" id="searchInput" class="search-input" placeholder="Search..." aria-label="Search">
+                    <!-- CRITICAL: आपकी सर्च हिस्ट्री वापस आ गई है -->
+                    <ul id="search-history" role="listbox" aria-label="Search history"></ul>
                 </div>
                 <button class="search-icon-btn" id="searchIconBtn" aria-label="Toggle search"><i class="material-icons">search</i></button>
                 <button class="theme-toggle-btn" id="themeToggle" aria-label="Toggle theme"><i class="material-icons">brightness_6</i></button>
@@ -26,70 +28,49 @@
     </header>
 
     <!-- ====================================================== -->
-    <!-- MAIN CONTENT (टैब्ड लेआउट के साथ अपडेट किया गया)       -->
+    <!-- MAIN CONTENT (न्यूनतम बदलावों के साथ)                  -->
     <!-- ====================================================== -->
     <main class="container">
-        <!-- टॉप का विज्ञापन स्थान (कोई बदलाव नहीं) -->
         <div class="ad-space" id="ad-space-top"></div>
 
-        <!-- NEW: Main Content Tabs with Icons -->
-        <!-- यह नया टैब नेविगेशन है जो एनीमे और कॉमिक्स के बीच स्विच करेगा -->
-        <div class="content-tabs">
-            <button class="tab-btn active" data-content="anime">
-                <i class="material-icons">movie</i>
-                <span>Anime</span>
-            </button>
-            <button class="tab-btn" data-content="comic">
-                <i class="material-icons">book</i>
-                <span>Comics</span>
-            </button>
-        </div>
-
-        <!-- टैग्स फिल्टर (कोई बदलाव नहीं) -->
         <div class="filters-container">
-            <!-- आप चाहें तो इसे रख सकते हैं, या हटा भी सकते हैं अगर टैब्स काफी हैं -->
-            <!-- <h3 class="filters-title">Browse by Tags</h3> -->
+            <!-- NEW: Content Type Filter -->
+            <!-- यह नया, सरल फ़िल्टर है जो आपके मौजूदा लेआउट में फिट होता है -->
+            <div class="content-type-filter">
+                <button class="filter-btn active" data-type="all">
+                    <i class="material-icons">apps</i> All
+                </button>
+                <button class="filter-btn" data-type="anime">
+                    <i class="material-icons">movie</i> Anime Only
+                </button>
+                <button class="filter-btn" data-type="comic">
+                    <i class="material-icons">book</i> Comics Only
+                </button>
+            </div>
+
+            <!-- आपका ओरिजिनल टैग्स सेक्शन (कोई बदलाव नहीं) -->
+            <h3 class="section-title" style="font-size: 1.2rem; margin-top: 2rem; margin-bottom: 1rem;">Browse by Tags</h3>
             <div class="tags-container">
                 <div class="tags-slider" id="tagsSlider"></div>
             </div>
         </div>
 
-        <!-- NEW: Content Panes Wrapper -->
-        <!-- यह एक कंटेनर है जो एनीमे और कॉमिक्स के सेक्शन को रखेगा -->
-        <div class="content-panes">
-
-            <!-- 1. Anime Content Pane (डिफ़ॉल्ट रूप से दिखाई देगा) -->
-            <div id="anime-pane" class="content-pane active">
-                <h2 class="section-title">Latest Anime</h2>
-                <div id="anime-grid" class="post-grid">
-                    <!-- एनीमे पोस्ट्स जावास्क्रिप्ट के माध्यम से यहाँ लोड होंगे -->
-                </div>
-                <!-- CRITICAL: Anime का अपना पेजिंग सिस्टम -->
-                <div class="pagination" id="anime-pagination">
-                    <!-- एनीमे के पेज नंबर (1, 2, 3...) जावास्क्रिप्ट से यहाँ बनेंगे -->
-                </div>
-            </div>
-
-            <!-- 2. Comic Content Pane (डिफ़ॉल्ट रूप से छिपा रहेगा) -->
-            <div id="comic-pane" class="content-pane">
-                <h2 class="section-title">Latest Comics</h2>
-                <div id="comic-grid" class="post-grid">
-                    <!-- कॉमिक्स पोस्ट्स जावास्क्रिप्ट के माध्यम से यहाँ लोड होंगे -->
-                </div>
-                <!-- CRITICAL: Comics का अपना पेजिंग सिस्टम -->
-                <div class="pagination" id="comic-pagination">
-                    <!-- कॉमिक्स के पेज नंबर (1, 2, 3...) जावास्क्रिप्ट से यहाँ बनेंगे -->
-                </div>
-            </div>
-
+        <!-- आपका ओरिजिनल ग्रिड और टाइटल (कोई बदलाव नहीं) -->
+        <h2 class="section-title" id="gridTitle">Latest Posts</h2>
+        <div id="anime-grid">
+            <!-- सभी पोस्ट्स जावास्क्रिप्ट के माध्यम से यहाँ लोड होंगे -->
         </div>
         
-        <!-- बॉटम का विज्ञापन स्थान (कोई बदलाव नहीं) -->
+        <!-- CRITICAL: आपका ओरिजिनल पेजिंग सिस्टम वापस आ गया है -->
+        <div class="pagination" id="pagination">
+            <!-- पेज नंबर (1, 2, 3...) जावास्क्रिप्ट से यहाँ बनेंगे -->
+        </div>
+        
         <div class="ad-space" id="ad-space-bottom"></div>
     </main>
 
     <!-- ====================================================== -->
-    <!-- FOOTER (कोई बदलाव नहीं)                               -->
+    <!-- FOOTER (बिल्कुल वैसा ही जैसा आपने दिया था)              -->
     <!-- ====================================================== -->
     <footer>
         <div class="footer-links">
