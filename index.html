@@ -32,16 +32,23 @@
         <!-- टॉप का विज्ञापन स्थान (कोई बदलाव नहीं) -->
         <div class="ad-space" id="ad-space-top"></div>
 
-        <!-- NEW: Main Content Tabs -->
+        <!-- NEW: Main Content Tabs with Icons -->
         <!-- यह नया टैब नेविगेशन है जो एनीमे और कॉमिक्स के बीच स्विच करेगा -->
         <div class="content-tabs">
-            <button class="tab-btn active" data-content="anime">Anime</button>
-            <button class="tab-btn" data-content="comic">Comics</button>
+            <button class="tab-btn active" data-content="anime">
+                <i class="material-icons">movie</i>
+                <span>Anime</span>
+            </button>
+            <button class="tab-btn" data-content="comic">
+                <i class="material-icons">book</i>
+                <span>Comics</span>
+            </button>
         </div>
 
         <!-- टैग्स फिल्टर (कोई बदलाव नहीं) -->
         <div class="filters-container">
-            <h3 class="filters-title">Browse by Tags</h3>
+            <!-- आप चाहें तो इसे रख सकते हैं, या हटा भी सकते हैं अगर टैब्स काफी हैं -->
+            <!-- <h3 class="filters-title">Browse by Tags</h3> -->
             <div class="tags-container">
                 <div class="tags-slider" id="tagsSlider"></div>
             </div>
@@ -57,9 +64,9 @@
                 <div id="anime-grid" class="post-grid">
                     <!-- एनीमे पोस्ट्स जावास्क्रिप्ट के माध्यम से यहाँ लोड होंगे -->
                 </div>
-                <!-- Anime का अपना पेजिंग सिस्टम -->
+                <!-- CRITICAL: Anime का अपना पेजिंग सिस्टम -->
                 <div class="pagination" id="anime-pagination">
-                    <!-- एनीमे के पेज नंबर जावास्क्रिप्ट से यहाँ बनेंगे -->
+                    <!-- एनीमे के पेज नंबर (1, 2, 3...) जावास्क्रिप्ट से यहाँ बनेंगे -->
                 </div>
             </div>
 
@@ -69,9 +76,9 @@
                 <div id="comic-grid" class="post-grid">
                     <!-- कॉमिक्स पोस्ट्स जावास्क्रिप्ट के माध्यम से यहाँ लोड होंगे -->
                 </div>
-                <!-- Comics का अपना पेजिंग सिस्टम -->
+                <!-- CRITICAL: Comics का अपना पेजिंग सिस्टम -->
                 <div class="pagination" id="comic-pagination">
-                    <!-- कॉमिक्स के पेज नंबर जावास्क्रिप्ट से यहाँ बनेंगे -->
+                    <!-- कॉमिक्स के पेज नंबर (1, 2, 3...) जावास्क्रिप्ट से यहाँ बनेंगे -->
                 </div>
             </div>
 
