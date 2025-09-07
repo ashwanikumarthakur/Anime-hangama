@@ -6,35 +6,72 @@
     <title>Anime Hangama</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!-- हम इसी style.css को अगले चरण में अपग्रेड करेंगे -->
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <!-- ====================================================== -->
+    <!-- HEADER (कोई बदलाव नहीं)                               -->
+    <!-- आपका हेडर और नेविगेशन का स्ट्रक्चर पहले से ही बहुत अच्छा है। -->
+    <!-- ====================================================== -->
     <header>
         <div class="container header-container">
             <a href="#" class="logo" id="logo">Anime Hangama</a>
             <nav>
                 <div class="search-wrapper" id="searchWrapper">
                     <input type="text" id="searchInput" class="search-input" placeholder="Search..." aria-label="Search">
-                    <ul id="search-history" role="listbox" aria-label="Search history"></ul>
+                    <!-- search-history को JS से मैनेज किया जाएगा, इसलिए HTML में रखने की ज़रूरत नहीं है -->
                 </div>
                 <button class="search-icon-btn" id="searchIconBtn" aria-label="Toggle search"><i class="material-icons">search</i></button>
                 <button class="theme-toggle-btn" id="themeToggle" aria-label="Toggle theme"><i class="material-icons">brightness_6</i></button>
             </nav>
         </div>
     </header>
+
+    <!-- ====================================================== -->
+    <!-- MAIN CONTENT (यहाँ मुख्य बदलाव किए गए हैं)               -->
+    <!-- ====================================================== -->
     <main class="container">
-        <div class="ad-space" id="ad-space-top"><p></p></div>
+        <!-- टॉप का विज्ञापन स्थान (कोई बदलाव नहीं) -->
+        <div class="ad-space" id="ad-space-top"></div>
+
+        <!-- टैग्स फिल्टर (कोई बदलाव नहीं) -->
         <div class="filters-container">
             <h2 class="section-title">Browse by Tags</h2>
             <div class="tags-container">
                 <div class="tags-slider" id="tagsSlider"></div>
             </div>
         </div>
-        <h2 class="section-title" id="gridTitle">Latest Posts</h2>
-        <div id="anime-grid"></div>
-        <div class="pagination" id="pagination"></div>
-        <div class="ad-space" id="ad-space-bottom"><p></p></div>
+
+        <!-- बदला हुआ हिस्सा यहाँ से शुरू होता है -->
+
+        <!-- 1. पुराना जेनेरिक टाइटल हटा दिया गया है -->
+        <!-- <h2 class="section-title" id="gridTitle">Latest Posts</h2> (यह लाइन हटा दी गई है) -->
+
+        <!-- 2. एनीमे के लिए एक समर्पित सेक्शन बनाया गया है -->
+        <h2 class="section-title" id="animeGridTitle">Latest Anime</h2>
+        <div id="anime-grid" class="post-grid">
+            <!-- एनीमे पोस्ट्स जावास्क्रिप्ट के माध्यम से यहाँ लोड होंगे -->
+        </div>
+
+        <!-- 3. कॉमिक्स के लिए एक नया, समर्पित सेक्शन बनाया गया है -->
+        <h2 class="section-title" id="comicGridTitle" style="margin-top: 3rem;">Latest Comics</h2>
+        <div id="comic-grid" class="post-grid">
+            <!-- कॉमिक्स पोस्ट्स जावास्क्रिप्ट के माध्यम से यहाँ लोड होंगे -->
+        </div>
+
+        <!-- 4. पुराना पेजिंग (Pagination) हटा दिया गया है -->
+        <!-- <div class="pagination" id="pagination"></div> (यह लाइन हटा दी गई है) -->
+        <!-- क्योंकि हम अब सारे पोस्ट्स को एक बार में लोड करके क्लाइंट-साइड पर फिल्टर करेंगे, 
+             इसलिए पारंपरिक पेजिंग की ज़रूरत नहीं है। -->
+        
+        <!-- बॉटम का विज्ञापन स्थान (कोई बदलाव नहीं) -->
+        <div class="ad-space" id="ad-space-bottom"></div>
     </main>
+
+    <!-- ====================================================== -->
+    <!-- FOOTER (कोई बदलाव नहीं)                               -->
+    <!-- ====================================================== -->
     <footer>
         <div class="footer-links">
             <a href="disclaimer.html">Disclaimer</a>
@@ -44,6 +81,8 @@
         </div>
         <p>© 2025 Anime Hangama. All Rights Reserved.</p>
     </footer>
+
+    <!-- हम इसी script.js को अंतिम चरण में अपग्रेड करेंगे -->
     <script src="script.js"></script>
 </body>
 </html>
