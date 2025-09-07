@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let allPostsCache = [];
     let searchHistory = JSON.parse(localStorage.getItem('searchHistory')) || [];
     // NEW: एक नया स्टेट जो बताएगा कि कौन सा कंटेंट टाइप (all, anime, comic) चुना गया है।
-    let currentContentType = 'all'; 
+    let currentContentType = 'all';
 
     // --- 3. API से बात करने वाले फंक्शन्स ---
     // NOTE: updateCounter फंक्शन अब tracker.js फाइल में है।
@@ -38,10 +38,9 @@ document.addEventListener('DOMContentLoaded', () => {
      */
     const createPostCard = (post) => {
         const card = document.createElement('div');
-        // NEW: पोस्ट टाइप के आधार पर क्लास जोड़ता है ताकि CSS सही डिज़ाइन लागू कर सके।
+        // UPDATED: पोस्ट टाइप के आधार पर क्लास जोड़ता है।
         card.className = `anime-card type-${post.postType || 'anime'}`;
 
-        // Image wrapper
         const imgWrapper = document.createElement('div');
         imgWrapper.className = 'card-img-wrapper';
         const img = document.createElement('img');
@@ -51,7 +50,6 @@ document.addEventListener('DOMContentLoaded', () => {
         imgWrapper.appendChild(img);
         card.appendChild(imgWrapper);
 
-        // Content
         const content = document.createElement('div');
         content.className = 'card-content';
         const h3 = document.createElement('h3');
@@ -60,7 +58,6 @@ document.addEventListener('DOMContentLoaded', () => {
         h3.textContent = post.title || 'Untitled';
         content.appendChild(h3);
 
-        // Footer
         const footer = document.createElement('div');
         footer.className = 'card-footer';
         const viewSpan = document.createElement('span');
@@ -80,7 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
         link.href = post.link || '#';
         link.target = '_blank';
         link.rel = 'noopener noreferrer';
-        // NEW: बटन का टेक्स्ट पोस्ट टाइप के आधार पर बदलता है।
+        // UPDATED: बटन का टेक्स्ट पोस्ट टाइप के आधार पर बदलता है।
         link.textContent = post.postType === 'comic' ? 'Read Now' : 'Watch Now';
 
         footer.appendChild(viewSpan);
@@ -95,29 +92,25 @@ document.addEventListener('DOMContentLoaded', () => {
      * सर्वर से एक खास पेज के पोस्ट्स को लाता है।
      * (आपके ओरिजिनल कोड से, postType फिल्टर के लिए अपडेट किया गया)
      */
-    const fetchPaginatedPosts = async (page = 1, type = 'all') => {
+    const fetchPaginatedPosts = async (page = 1) => {
         if (isLoading) return;
         isLoading = true;
         renderSkeletonLoader();
         if (paginationContainer) paginationContainer.innerHTML = '';
-        if (gridTitle) gridTitle.textContent = 'Loading Posts...';
-
-        // NEW: URL में postType का पैरामीटर जोड़ा गया है, अगर 'all' नहीं है तो।
+        if (gridTitle) gridTitle.textContent = 'Latest Posts';
+        
+        // UPDATED: URL में postType का पैरामीटर जोड़ा गया है, अगर 'all' नहीं है तो।
         let url = `${backendBaseUrl}/api/posts?page=${page}&limit=12`;
-        if (type !== 'all') {
-            url += `&type=${type}`;
+        if (currentContentType !== 'all') {
+            url += `&type=${currentContentType}`;
         }
-
+        
         try {
             const response = await fetch(url);
             if (!response.ok) throw new Error('Network error ' + response.status);
             const data = await response.json();
             renderPosts(data.posts || []);
             renderPagination(data.currentPage, data.totalPages);
-            // NEW: टाइटल को और जानकारीपूर्ण बनाया गया
-            let titlePrefix = type === 'anime' ? 'Anime' : type === 'comic' ? 'Comics' : 'All Posts';
-            gridTitle.textContent = `Latest ${titlePrefix} (Page ${data.currentPage})`;
-
         } catch (error) {
             animeGrid.innerHTML = '<p>Failed to load posts. Please try again later.</p>';
             console.error('fetchPaginatedPosts error:', error);
@@ -159,7 +152,8 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!response.ok) throw new Error('Search failed: ' + response.status);
             const data = await response.json();
             const apiResults = Array.isArray(data) ? data : (data.posts || []);
-            // NOTE: सर्वर-साइड सर्च ज़्यादा शक्तिशाली है, इसलिए हम सिर्फ उसी का उपयोग कर रहे हैं।
+            // NOTE: आपके ओरिजिनल कोड में tagResults का लॉजिक था, लेकिन सर्वर सर्च ज़्यादा बेहतर है।
+            // इसे सरल रखने के लिए हम सिर्फ सर्वर रिजल्ट्स का उपयोग कर रहे हैं।
             renderPosts(apiResults);
         } catch (error) {
             animeGrid.innerHTML = '<p>Search failed. Please try again.</p>';
@@ -174,9 +168,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const renderSkeletonLoader = () => {
         animeGrid.innerHTML = '';
         for (let i = 0; i < 8; i++) {
-            // NEW: स्केलेटन अब रैंडमली एनीमे या कॉमिक के डिज़ाइन का हो सकता है
-            const type = Math.random() > 0.5 ? 'anime' : 'comic';
             const skeletonCard = document.createElement('div');
+            // UPDATED: स्केलेटन अब रैंडमली एनीमे या कॉमिक के डिज़ाइन का हो सकता है
+            const type = Math.random() > 0.5 ? 'anime' : 'comic';
             skeletonCard.className = `anime-card skeleton-card type-${type}`;
             skeletonCard.innerHTML = `<div class="skeleton-image"></div><div class="skeleton-content"><div class="skeleton-title"></div><div class="skeleton-footer"></div></div>`;
             animeGrid.appendChild(skeletonCard);
@@ -196,14 +190,14 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     /**
-     * टैग्स को डायनामिक रूप से लोड करता है और डुप्लीकेट हटाता है।
-     * (आपके ओरिजिनल कोड से, डुप्लीकेट हटाने और नए `tags` ऐरे को सपोर्ट करने के लिए अपग्रेड किया गया)
+     * टैग्स को डायनामिक रूप से लोड करता है, सिर्फ कॉमा से तोड़ता है और डुप्लीकेट हटाता है।
+     * (आपके ओरिजिनल कोड से, आपकी फाइनल रिक्वायरमेंट के अनुसार अपग्रेड किया गया)
      */
     const loadTags = (posts) => {
         if (!tagsSlider) return;
         tagsSlider.classList.remove('loading');
         
-        // NEW: Set का उपयोग करके डुप्लीकेट टैग्स को हटाना
+        // UPDATED: Set का उपयोग करके डुप्लीकेट टैग्स को हटाना
         const tagSet = new Set();
         posts.forEach(post => {
             // category से टैग लेना (सिर्फ कॉमा से तोड़ना)
@@ -242,7 +236,7 @@ document.addEventListener('DOMContentLoaded', () => {
             animeGrid.innerHTML = '<p style="grid-column: 1 / -1; text-align: center;">No posts found.</p>';
             return;
         }
-        // NOTE: सॉर्टिंग अब सर्वर पर या fetchAllPosts में हो रही है, यहाँ दोबारा करने की ज़रूरत नहीं।
+        // NOTE: सॉर्टिंग अब सर्वर पर हो रही है, इसलिए क्लाइंट पर दोबारा करने की ज़रूरत नहीं।
         posts.forEach(post => {
             const { card, link, viewsNum } = createPostCard(post);
 
@@ -252,16 +246,21 @@ document.addEventListener('DOMContentLoaded', () => {
                     updateCounter(post._id, 'click'); // tracker.js से आएगा
                 });
             }
-            
-            // NOTE: आपका ओरिजिनल कार्ड क्लिक का लॉजिक यहाँ नहीं था, इसलिए उसे जोड़ा नहीं गया है।
-            // सिर्फ व्यू ट्रैकिंग को जोड़ा गया है।
-            const observer = new IntersectionObserver((entries) => {
-                if(entries[0].isIntersecting){
-                    updateCounter(post._id, 'view'); // tracker.js से आएगा
-                    observer.disconnect();
+
+            // आपके ओरिजिनल कोड में कार्ड पर क्लिक करने का यह लॉजिक था, इसे वापस जोड़ा गया है।
+            card.addEventListener('click', (e) => {
+                if (e.target.closest('.card-link')) return;
+                if (viewsNum) {
+                    const current = parseInt(viewsNum.textContent.replace(/,/g, '')) || 0;
+                    viewsNum.textContent = (current + 1).toLocaleString();
                 }
-            }, {threshold: 0.5});
-            observer.observe(card);
+                try {
+                    window.open(post.link, '_blank', 'noopener,noreferrer');
+                } catch (ex) {
+                    window.location.href = post.link;
+                }
+                updateCounter(post._id, 'view'); // tracker.js से आएगा
+            });
 
             animeGrid.appendChild(card);
         });
@@ -354,7 +353,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 contentTypeFilter.querySelector('[data-type="all"]').classList.add('active');
                 currentContentType = 'all';
             }
-            fetchPaginatedPosts(1, 'all'); // 'all' के साथ कॉल करें
+            fetchPaginatedPosts(1); // अब यह currentContentType का उपयोग करेगा
             const activeTag = document.querySelector('.tag-bubble.active');
             if (activeTag) activeTag.classList.remove('active');
             const allTagButton = document.querySelector('.tag-bubble[data-tag="all"]');
@@ -371,7 +370,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 button.classList.add('active');
                 currentContentType = button.dataset.type;
                 // नए फिल्टर के साथ पहले पेज को लोड करो
-                fetchPaginatedPosts(1, currentContentType);
+                fetchPaginatedPosts(1);
             }
         });
     }
@@ -385,22 +384,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 const tag = button.dataset.tag;
 
                 if (tag === 'all') {
-                    // 'All' पर क्लिक करने पर, मौजूदा कंटेंट टाइप फिल्टर के साथ पहला पेज दिखाओ
-                    fetchPaginatedPosts(1, currentContentType);
+                    fetchPaginatedPosts(1);
                 } else {
-                    gridTitle.textContent = `Tag: ${tag}`;
-                    // NEW: अब हम allPostsCache से फिल्टर करेंगे
+                    if (gridTitle) gridTitle.textContent = `Tag: ${tag}`;
                     let filteredPosts = allPostsCache.filter(post => 
                         (post.category && post.category.split(',').map(t=>t.trim()).includes(tag)) ||
                         (post.tags && post.tags.includes(tag))
                     );
                     // NEW: टैग फिल्टर के साथ कंटेंट टाइप फिल्टर भी लागू करें
                     if(currentContentType !== 'all'){
-                        filteredPosts = filteredPosts.filter(post => (post.postType || 'anime') === currentContentType)
+                        filteredPosts = filteredPosts.filter(post => (post.postType || 'anime') === currentContentType);
                     }
-
                     renderPosts(filteredPosts);
-                    paginationContainer.innerHTML = ''; // टैग फिल्टर के लिए पेजिंग नहीं
+                    if (paginationContainer) paginationContainer.innerHTML = '';
                 }
             }
         });
@@ -448,8 +444,7 @@ document.addEventListener('DOMContentLoaded', () => {
         paginationContainer.addEventListener('click', (e) => {
             const button = e.target.closest('.page-btn');
             if (button && button.dataset.page && !button.disabled) {
-                // NEW: पेज बदलते समय मौजूदा कंटेंट टाइप फिल्टर को ध्यान में रखो
-                fetchPaginatedPosts(parseInt(button.dataset.page), currentContentType);
+                fetchPaginatedPosts(parseInt(button.dataset.page));
             }
         });
     }
