@@ -26,26 +26,20 @@
     </header>
 
     <!-- ====================================================== -->
-    <!-- MAIN CONTENT (यहाँ मुख्य बदलाव किए गए हैं)               -->
+    <!-- MAIN CONTENT (टैब्ड लेआउट के साथ अपडेट किया गया)       -->
     <!-- ====================================================== -->
     <main class="container">
         <!-- टॉप का विज्ञापन स्थान (कोई बदलाव नहीं) -->
         <div class="ad-space" id="ad-space-top"></div>
 
-        <!-- NEW: Quick Navigation Tabs -->
-        <!-- यह नया सेक्शन है जो यूजर को एनीमे या कॉमिक्स पर तुरंत ले जाएगा -->
-        <div class="quick-nav-container">
-            <a href="#anime-section" class="quick-nav-tab active" data-target="anime">
-                <i class="material-icons">movie</i>
-                <span>Anime</span>
-            </a>
-            <a href="#comics-section" class="quick-nav-tab" data-target="comic">
-                <i class="material-icons">book</i>
-                <span>Comics</span>
-            </a>
+        <!-- NEW: Main Content Tabs -->
+        <!-- यह नया टैब नेविगेशन है जो एनीमे और कॉमिक्स के बीच स्विच करेगा -->
+        <div class="content-tabs">
+            <button class="tab-btn active" data-content="anime">Anime</button>
+            <button class="tab-btn" data-content="comic">Comics</button>
         </div>
 
-        <!-- टैग्स फिल्टर (अब टैब्स के नीचे) -->
+        <!-- टैग्स फिल्टर (कोई बदलाव नहीं) -->
         <div class="filters-container">
             <h3 class="filters-title">Browse by Tags</h3>
             <div class="tags-container">
@@ -53,23 +47,35 @@
             </div>
         </div>
 
-        <!-- बदला हुआ हिस्सा यहाँ से शुरू होता है -->
+        <!-- NEW: Content Panes Wrapper -->
+        <!-- यह एक कंटेनर है जो एनीमे और कॉमिक्स के सेक्शन को रखेगा -->
+        <div class="content-panes">
 
-        <!-- 1. एनीमे के लिए समर्पित सेक्शन (अब एक id के साथ ताकि लिंक काम करे) -->
-        <section id="anime-section" class="content-section">
-            <h2 class="section-title">Latest Anime</h2>
-            <div id="anime-grid" class="post-grid">
-                <!-- एनीमे पोस्ट्स जावास्क्रिप्ट के माध्यम से यहाँ लोड होंगे -->
+            <!-- 1. Anime Content Pane (डिफ़ॉल्ट रूप से दिखाई देगा) -->
+            <div id="anime-pane" class="content-pane active">
+                <h2 class="section-title">Latest Anime</h2>
+                <div id="anime-grid" class="post-grid">
+                    <!-- एनीमे पोस्ट्स जावास्क्रिप्ट के माध्यम से यहाँ लोड होंगे -->
+                </div>
+                <!-- Anime का अपना पेजिंग सिस्टम -->
+                <div class="pagination" id="anime-pagination">
+                    <!-- एनीमे के पेज नंबर जावास्क्रिप्ट से यहाँ बनेंगे -->
+                </div>
             </div>
-        </section>
 
-        <!-- 2. कॉमिक्स के लिए समर्पित सेक्शन (अब एक id के साथ ताकि लिंक काम करे) -->
-        <section id="comics-section" class="content-section" style="margin-top: 3rem;">
-            <h2 class="section-title">Latest Comics</h2>
-            <div id="comic-grid" class="post-grid">
-                <!-- कॉमिक्स पोस्ट्स जावास्क्रिप्ट के माध्यम से यहाँ लोड होंगे -->
+            <!-- 2. Comic Content Pane (डिफ़ॉल्ट रूप से छिपा रहेगा) -->
+            <div id="comic-pane" class="content-pane">
+                <h2 class="section-title">Latest Comics</h2>
+                <div id="comic-grid" class="post-grid">
+                    <!-- कॉमिक्स पोस्ट्स जावास्क्रिप्ट के माध्यम से यहाँ लोड होंगे -->
+                </div>
+                <!-- Comics का अपना पेजिंग सिस्टम -->
+                <div class="pagination" id="comic-pagination">
+                    <!-- कॉमिक्स के पेज नंबर जावास्क्रिप्ट से यहाँ बनेंगे -->
+                </div>
             </div>
-        </section>
+
+        </div>
         
         <!-- बॉटम का विज्ञापन स्थान (कोई बदलाव नहीं) -->
         <div class="ad-space" id="ad-space-bottom"></div>
