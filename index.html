@@ -32,19 +32,22 @@
         <!-- टॉप का विज्ञापन स्थान (कोई बदलाव नहीं) -->
         <div class="ad-space" id="ad-space-top"></div>
 
-        <!-- filters-container को अब view-controls-container कहा जाएगा -->
-        <div class="view-controls-container">
-            <!-- नया: एनीमे और कॉमिक्स के बीच स्विच करने के लिए टॉगल बटन -->
-            <div class="content-type-toggle">
-                <button class="toggle-btn active" data-type="anime">
-                    <i class="material-icons">movie</i> Anime
-                </button>
-                <button class="toggle-btn" data-type="comic">
-                    <i class="material-icons">book</i> Comics
-                </button>
-            </div>
-            
-            <!-- टैग्स फिल्टर (अब टॉगल के नीचे) -->
+        <!-- NEW: Quick Navigation Tabs -->
+        <!-- यह नया सेक्शन है जो यूजर को एनीमे या कॉमिक्स पर तुरंत ले जाएगा -->
+        <div class="quick-nav-container">
+            <a href="#anime-section" class="quick-nav-tab active" data-target="anime">
+                <i class="material-icons">movie</i>
+                <span>Anime</span>
+            </a>
+            <a href="#comics-section" class="quick-nav-tab" data-target="comic">
+                <i class="material-icons">book</i>
+                <span>Comics</span>
+            </a>
+        </div>
+
+        <!-- टैग्स फिल्टर (अब टैब्स के नीचे) -->
+        <div class="filters-container">
+            <h3 class="filters-title">Browse by Tags</h3>
             <div class="tags-container">
                 <div class="tags-slider" id="tagsSlider"></div>
             </div>
@@ -52,11 +55,21 @@
 
         <!-- बदला हुआ हिस्सा यहाँ से शुरू होता है -->
 
-        <!-- 1. अब सिर्फ एक ही ग्रिड होगा, जिसे जावास्क्रिप्ट कंट्रोल करेगा -->
-        <h2 class="section-title" id="gridTitle">Latest Anime</h2>
-        <div id="posts-grid" class="post-grid">
-            <!-- सभी पोस्ट्स (एनीमे या कॉमिक्स) जावास्क्रिप्ट के माध्यम से यहाँ लोड होंगे -->
-        </div>
+        <!-- 1. एनीमे के लिए समर्पित सेक्शन (अब एक id के साथ ताकि लिंक काम करे) -->
+        <section id="anime-section" class="content-section">
+            <h2 class="section-title">Latest Anime</h2>
+            <div id="anime-grid" class="post-grid">
+                <!-- एनीमे पोस्ट्स जावास्क्रिप्ट के माध्यम से यहाँ लोड होंगे -->
+            </div>
+        </section>
+
+        <!-- 2. कॉमिक्स के लिए समर्पित सेक्शन (अब एक id के साथ ताकि लिंक काम करे) -->
+        <section id="comics-section" class="content-section" style="margin-top: 3rem;">
+            <h2 class="section-title">Latest Comics</h2>
+            <div id="comic-grid" class="post-grid">
+                <!-- कॉमिक्स पोस्ट्स जावास्क्रिप्ट के माध्यम से यहाँ लोड होंगे -->
+            </div>
+        </section>
         
         <!-- बॉटम का विज्ञापन स्थान (कोई बदलाव नहीं) -->
         <div class="ad-space" id="ad-space-bottom"></div>
